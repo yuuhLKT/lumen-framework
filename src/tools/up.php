@@ -6,23 +6,35 @@ require_once __DIR__ . '/env.php';
 
 $envFile = $argv[1] ?? '.env';
 $compose = $argv[2] ?? 'docker compose';
+$runner = $argv[3] ?? 'docker';
+$profileFlag = null;
+
+foreach (array_slice($argv, 4) as $extra) {
+    if (str_starts_with($extra, '--profile=')) {
+        $profileFlag = substr($extra, strlen('--profile='));
+    }
+}
+
+$isLocal = $runner === 'local';
+$mysqlHost = $isLocal ? '127.0.0.1' : 'mysql';
+$pgHost = $isLocal ? '127.0.0.1' : 'postgres';
 
 $choices = [
     '1' => [
-        'label' => 'JSON local',
+        'label' => $isLocal ? 'JSON local (arquivo)' : 'JSON local (em container)',
         'updates' => ['DB_CONNECTION' => 'json', 'DB_JSON_PATH' => 'storage/database.json'],
-        'command' => ['up', '--build', 'php'],
+        'local_only' => true,
     ],
     '2' => [
-        'label' => 'SQLite local',
+        'label' => $isLocal ? 'SQLite local (arquivo)' : 'SQLite local (em container)',
         'updates' => ['DB_CONNECTION' => 'sqlite', 'DB_SQLITE_PATH' => 'storage/database.sqlite'],
-        'command' => ['up', '--build', 'php'],
+        'local_only' => true,
     ],
     '3' => [
-        'label' => 'MySQL Docker',
+        'label' => 'MySQL (' . ($isLocal ? 'servidor na maquina' : 'container docker') . ')',
         'updates' => [
             'DB_CONNECTION' => 'mysql',
-            'DB_MYSQL_HOST' => 'mysql',
+            'DB_MYSQL_HOST' => $mysqlHost,
             'DB_MYSQL_PORT' => '3306',
             'DB_MYSQL_DATABASE' => 'base',
             'DB_MYSQL_USERNAME' => 'base',
@@ -30,40 +42,54 @@ $choices = [
             'DB_MYSQL_CHARSET' => 'utf8mb4',
             'DB_MYSQL_ROOT_PASSWORD' => 'root',
         ],
-        'command' => ['--profile', 'mysql', 'up', '--build', 'php', 'mysql'],
+        'local_only' => false,
+        'profile' => 'mysql',
     ],
     '4' => [
-        'label' => 'PostgreSQL Docker',
+        'label' => 'PostgreSQL (' . ($isLocal ? 'servidor na maquina' : 'container docker') . ')',
         'updates' => [
             'DB_CONNECTION' => 'pgsql',
-            'DB_PGSQL_HOST' => 'postgres',
+            'DB_PGSQL_HOST' => $pgHost,
             'DB_PGSQL_PORT' => '5432',
             'DB_PGSQL_DATABASE' => 'base',
             'DB_PGSQL_USERNAME' => 'base',
             'DB_PGSQL_PASSWORD' => 'base',
         ],
-        'command' => ['--profile', 'postgres', 'up', '--build', 'php', 'postgres'],
+        'local_only' => false,
+        'profile' => 'postgres',
     ],
 ];
 
-echo PHP_EOL;
-echo 'Escolha o banco para subir com Docker + ngrok local:' . PHP_EOL;
+if ($profileFlag !== null) {
+    $filtered = array_filter($choices, fn (array $choice): bool => ($choice['profile'] ?? null) === $profileFlag);
 
-foreach ($choices as $number => $choice) {
-    echo "  {$number}) {$choice['label']}" . PHP_EOL;
+    if ($filtered === []) {
+        fwrite(STDERR, "Perfil desconhecido: {$profileFlag}\n");
+        exit(1);
+    }
+
+    $choice = array_values($filtered)[0];
+    $selected = array_key_first($filtered);
+} else {
+    echo PHP_EOL;
+    echo "Escolha o banco para subir (runner: {$runner}):" . PHP_EOL;
+
+    foreach ($choices as $number => $choice) {
+        echo "  {$number}) {$choice['label']}" . PHP_EOL;
+    }
+
+    echo PHP_EOL . 'Opcao [1]: ';
+
+    $selected = trim((string) fgets(STDIN));
+    $selected = $selected === '' ? '1' : $selected;
+
+    if (!isset($choices[$selected])) {
+        fwrite(STDERR, "Opcao invalida.\n");
+        exit(1);
+    }
+
+    $choice = $choices[$selected];
 }
-
-echo PHP_EOL . 'Opcao [1]: ';
-
-$selected = trim((string) fgets(STDIN));
-$selected = $selected === '' ? '1' : $selected;
-
-if (!isset($choices[$selected])) {
-    fwrite(STDERR, "Opcao invalida.\n");
-    exit(1);
-}
-
-$choice = $choices[$selected];
 
 initEnv($envFile);
 writeEnv($envFile, $choice['updates']);
@@ -71,6 +97,27 @@ writeEnv($envFile, $choice['updates']);
 echo PHP_EOL;
 echo "Banco selecionado: {$choice['label']}" . PHP_EOL;
 echo "Arquivo {$envFile} atualizado." . PHP_EOL;
+
+if ($isLocal) {
+    echo PHP_EOL;
+    echo 'Modo local: iniciando PHP embutido.' . PHP_EOL;
+
+    if (!($choice['local_only'] ?? false)) {
+        $databaseHost = $choice['updates']['DB_CONNECTION'] === 'pgsql' ? $pgHost : $mysqlHost;
+        echo "Garanta que o servidor de banco local esta rodando em {$databaseHost}." . PHP_EOL;
+    }
+
+    $port = envValue($envFile, 'PHP_PORT', '8000');
+    $address = '0.0.0.0:' . $port;
+    $command = implode(' ', array_map('escapeCommandPart', [PHP_BINARY, '-S', $address, '-t', 'public']));
+
+    echo 'App local em: http://localhost:' . $port . PHP_EOL;
+    echo PHP_EOL;
+
+    passthru($command, $exitCode);
+    exit($exitCode);
+}
+
 echo 'Ngrok local vai apontar para http://localhost:' . envValue($envFile, 'PHP_PORT', '8000') . PHP_EOL;
 echo PHP_EOL;
 
@@ -79,8 +126,15 @@ if (!commandExists('ngrok')) {
     exit(1);
 }
 
+$composeArgs = ['up', '--build', 'php'];
+
+if (isset($choice['profile'])) {
+    array_unshift($composeArgs, '--profile', $choice['profile']);
+    $composeArgs[] = $choice['profile'];
+}
+
 $ngrok = startNgrok((int) envValue($envFile, 'PHP_PORT', '8000'));
-$command = implode(' ', array_map('escapeCommandPart', [...splitCommand($compose), ...$choice['command']]));
+$command = implode(' ', array_map('escapeCommandPart', [...splitCommand($compose), ...$composeArgs]));
 passthru($command, $exitCode);
 
 if (is_resource($ngrok)) {
@@ -91,7 +145,7 @@ exit($exitCode);
 
 function escapeCommandPart(string $part): string
 {
-    if (preg_match('/^[a-zA-Z0-9_.:\\/-]+$/', $part)) {
+    if (preg_match('/^[a-zA-Z0-9_.:\/-]+$/', $part)) {
         return $part;
     }
 

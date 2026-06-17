@@ -47,7 +47,25 @@ Com Makefile:
 make up
 ```
 
-O comando abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe o Docker e inicia o ngrok local apontando para a porta do PHP.
+O comando detecta se o Docker esta disponivel. Com Docker, abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, usa PHP local.
+
+Para forcar PHP local:
+
+```bash
+make local
+```
+
+Se quiser PHP local com banco em Docker, suba so o banco antes:
+
+```bash
+make db-up-mysql
+# ou
+make db-up-pg
+
+make local
+```
+
+Tambem existem aliases `local-*`, como `make local-up`, `make local-build`, `make local-test` e `make local-quality`.
 
 Teste rapido:
 

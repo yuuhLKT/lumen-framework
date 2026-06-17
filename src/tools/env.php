@@ -13,14 +13,15 @@ if (realpath($argv[0] ?? '') === realpath(__FILE__)) {
 
     if ($args === [] || in_array($args[0], ['-h', '--help'], true)) {
         echo "Usage:\n";
-        echo "  php tools/env.php --init [.env]\n";
+        echo "  php tools/env.php --init [.env] [template]\n";
         echo "  php tools/env.php [.env] KEY VALUE [KEY VALUE ...]\n";
         exit(0);
     }
 
     if ($args[0] === '--init') {
         $path = $args[1] ?? '.env';
-        initEnv($path);
+        $template = $args[2] ?? null;
+        initEnv($path, $template);
         echo "Arquivo {$path} pronto.\n";
         exit(0);
     }
@@ -55,13 +56,15 @@ if (realpath($argv[0] ?? '') === realpath(__FILE__)) {
     }
 }
 
-function initEnv(string $path): void
+function initEnv(string $path, ?string $template = null): void
 {
     if (is_file($path)) {
         return;
     }
 
-    $template = is_file('.env.docker.example') ? '.env.docker.example' : '.env.example';
+    if ($template === null) {
+        $template = is_file('.env.docker.example') ? '.env.docker.example' : '.env.example';
+    }
 
     if (!is_file($template)) {
         file_put_contents($path, '');
@@ -69,7 +72,7 @@ function initEnv(string $path): void
     }
 
     if (!copy($template, $path)) {
-        fwrite(STDERR, "Nao foi possivel criar {$path}.\n");
+        fwrite(STDERR, "Nao foi possivel criar {$path} a partir de {$template}.\n");
         exit(1);
     }
 }

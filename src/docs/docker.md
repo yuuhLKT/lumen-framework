@@ -30,14 +30,14 @@ O `.env` tem prioridade sobre variaveis de ambiente do sistema.
 
 ## Usar Makefile
 
-O Makefile e opcional. Ele automatiza a troca do banco no `.env` e sobe os containers certos.
+O Makefile e opcional. Ele automatiza a troca do banco no `.env` e sobe o app no Docker quando o daemon esta disponivel. Se o Docker nao estiver disponivel, `make up` cai para o modo local com `php -S`.
 
 Requisitos:
 
 - `make` instalado no sistema.
-- Docker Compose disponivel como `docker compose`.
+- Docker Compose disponivel como `docker compose` para o modo Docker.
 - PHP local disponivel para o script `tools/env.php`.
-- ngrok instalado e ja configurado no seu PC.
+- ngrok instalado e ja configurado no seu PC para o modo Docker com `make up`.
 
 Ver comandos disponiveis:
 
@@ -76,6 +76,37 @@ make up
 ```
 
 O menu pergunta qual banco usar, altera `DB_CONNECTION` no `.env`, sobe os containers necessarios e inicia o ngrok local apontando para `http://localhost:PHP_PORT`. Quando voce escolher MySQL ou PostgreSQL, o Makefile tambem sobe o container do banco escolhido.
+
+Forcar PHP local, sem subir container PHP:
+
+```bash
+make local
+```
+
+Esse comando apenas roda `php -S 0.0.0.0:8000 -t public` usando o `.env` atual.
+
+Para usar PHP local com banco em Docker, suba somente o banco:
+
+```bash
+make db-up-mysql
+# ou
+make db-up-pg
+
+make local
+```
+
+Esses comandos ajustam o `.env` para `127.0.0.1`, porque o PHP esta rodando no host e acessa a porta publicada pelo container do banco.
+
+Aliases locais tambem estao disponiveis:
+
+```bash
+make local-up
+make local-build
+make local-test
+make local-quality
+```
+
+No modo local, MySQL e PostgreSQL esperam um servidor acessivel pela maquina em `127.0.0.1`.
 
 Parar:
 
