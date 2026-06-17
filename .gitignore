@@ -1,0 +1,14 @@
+.env
+src/.env
+src/vendor/
+src/.phpunit.cache/
+src/.php-cs-fixer.cache
+src/.phpstan.cache/
+src/coverage/
+src/storage/*.sqlite
+src/storage/*.sqlite-*
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

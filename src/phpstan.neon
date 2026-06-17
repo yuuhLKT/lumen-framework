@@ -1,0 +1,11 @@
+parameters:
+    paths:
+        - app
+        - bootstrap
+        - config
+        - public
+        - routes
+        - tools
+    level: 5
+    scanFiles:
+        - utils/helpers.php
