@@ -16,6 +16,10 @@ final class NativeHttpClient implements HttpClient
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, string> $headers
+     */
     public function post(string $url, array $data = [], array $headers = [], int $timeout = 5): HttpResponse
     {
         return $this->request('POST', $url, [
@@ -66,7 +70,10 @@ final class NativeHttpClient implements HttpClient
         return null;
     }
 
-    /** @param array<string, string> $headers */
+    /**
+     * @param array<string, string> $headers
+     * @return array<int, string>
+     */
     private function formatHeaders(array $headers): array
     {
         $formatted = [];
@@ -88,7 +95,10 @@ final class NativeHttpClient implements HttpClient
         return 0;
     }
 
-    /** @param array<int, string> $rawHeaders */
+    /**
+     * @param array<int, string> $rawHeaders
+     * @return array<string, string>
+     */
     private function headers(array $rawHeaders): array
     {
         $headers = [];

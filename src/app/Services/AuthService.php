@@ -17,7 +17,10 @@ final class AuthService
     ) {
     }
 
-    /** @param array{name: string, email: string, password: string} $data */
+    /**
+     * @param array{name: string, email: string, password: string} $data
+     * @return array<string, mixed>
+     */
     public function register(array $data): array
     {
         $email = strtolower(trim($data['email']));
@@ -39,7 +42,10 @@ final class AuthService
         return $this->authResponse($user, $token['plain_text_token']);
     }
 
-    /** @param array{email: string, password: string} $data */
+    /**
+     * @param array{email: string, password: string} $data
+     * @return array<string, mixed>
+     */
     public function login(array $data): array
     {
         $user = $this->users->findByEmail($data['email']);
@@ -90,7 +96,10 @@ final class AuthService
         }
     }
 
-    /** @param array<string, mixed> $user */
+    /**
+     * @param array<string, mixed> $user
+     * @return array<string, mixed>
+     */
     private function authResponse(array $user, string $plainTextToken): array
     {
         return [
@@ -100,7 +109,10 @@ final class AuthService
         ];
     }
 
-    /** @param array<string, mixed> $user */
+    /**
+     * @param array<string, mixed> $user
+     * @return array<string, mixed>
+     */
     private function publicUser(array $user): array
     {
         unset($user['password_hash']);

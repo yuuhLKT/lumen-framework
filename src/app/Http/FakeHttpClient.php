@@ -27,6 +27,10 @@ final class FakeHttpClient implements HttpClient
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, string> $headers
+     */
     public function post(string $url, array $data = [], array $headers = [], int $timeout = 5): HttpResponse
     {
         return $this->request('POST', $url, [
