@@ -19,22 +19,22 @@ select_choice() {
 
     printf '\n%s\n' 'Escolha o ambiente/banco para subir:' >&2
     printf '%s\n' 'Docker:' >&2
-    printf '%s\n' '  d1) JSON local (em container)' >&2
-    printf '%s\n' '  d2) SQLite local (em container)' >&2
-    printf '%s\n' '  d3) MySQL (container docker)' >&2
-    printf '%s\n' '  d4) PostgreSQL (container docker)' >&2
+    printf '%s\n' '  1) JSON local (em container)' >&2
+    printf '%s\n' '  2) SQLite local (em container)' >&2
+    printf '%s\n' '  3) MySQL (container docker)' >&2
+    printf '%s\n' '  4) PostgreSQL (container docker)' >&2
     printf '%s\n' 'PHP local (sem Docker):' >&2
-    printf '%s\n' '  l1) JSON local (arquivo)' >&2
-    printf '%s\n' '  l2) SQLite local (arquivo)' >&2
-    printf '%s\n' '  l3) MySQL (servidor na maquina)' >&2
-    printf '%s\n' '  l4) PostgreSQL (servidor na maquina)' >&2
-    printf '\n%s' 'Opcao [d1]: ' >&2
+    printf '%s\n' '  5) JSON local (arquivo)' >&2
+    printf '%s\n' '  6) SQLite local (arquivo)' >&2
+    printf '%s\n' '  7) MySQL (servidor na maquina)' >&2
+    printf '%s\n' '  8) PostgreSQL (servidor na maquina)' >&2
+    printf '\n%s' 'Opcao [1]: ' >&2
 
     read selected
-    selected=${selected:-d1}
+    selected=${selected:-1}
 
     case "$selected" in
-        d1|d2|d3|d4|l1|l2|l3|l4)
+        1|2|3|4|5|6|7|8)
             printf '%s' "$selected"
             ;;
         *)
@@ -45,51 +45,54 @@ select_choice() {
 }
 
 choice=$(select_choice)
-mode=${choice%%[1234]}
-number=${choice##*[dl]}
+mode=docker
 profile=''
 services='php'
 
 sh tools/env.sh --init "$env_file" .env.docker.example >/dev/null
 
 case "$choice" in
-    d1)
+    1)
         label='JSON local (em container)'
         sh tools/env.sh "$env_file" DB_CONNECTION json DB_JSON_PATH storage/database.json >/dev/null
         ;;
-    d2)
+    2)
         label='SQLite local (em container)'
         sh tools/env.sh "$env_file" DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite >/dev/null
         ;;
-    d3)
+    3)
         label='MySQL (container docker)'
         profile='--profile mysql'
         services='php mysql'
         sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST mysql DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
         ;;
-    d4)
+    4)
         label='PostgreSQL (container docker)'
         profile='--profile postgres'
         services='php postgres'
         sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST postgres DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
         ;;
-    l1)
+    5)
         label='JSON local (arquivo)'
+        mode=local
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
         sh tools/env.sh "$env_file" DB_CONNECTION json DB_JSON_PATH storage/database.json >/dev/null
         ;;
-    l2)
+    6)
         label='SQLite local (arquivo)'
+        mode=local
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
         sh tools/env.sh "$env_file" DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite >/dev/null
         ;;
-    l3)
+    7)
         label='MySQL (servidor na maquina)'
+        mode=local
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
         sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
         ;;
-    l4)
+    8)
         label='PostgreSQL (servidor na maquina)'
+        mode=local
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
         sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
         ;;
@@ -100,7 +103,7 @@ php_port=$(awk -F= '/^[[:space:]]*PHP_PORT[[:space:]]*=/ { gsub(/"/, "", $2); pr
 printf '\nBanco selecionado: %s\n' "$label"
 printf 'Arquivo %s atualizado.\n' "$env_file"
 
-if [ "$mode" = 'l' ]; then
+if [ "$mode" = 'local' ]; then
     printf '\nModo local: iniciando PHP embutido.\n'
     printf 'App local em: http://localhost:%s\n\n' "$php_port"
     php -S "0.0.0.0:${php_port}" -t public

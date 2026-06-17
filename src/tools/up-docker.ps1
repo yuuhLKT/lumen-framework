@@ -15,33 +15,33 @@ function Invoke-EnvTool([string[]] $ToolArgs) {
 
 function Get-SelectedChoice {
     if ($ProfileFlag -eq '--profile=mysql') {
-        return 'd3'
+        return '3'
     }
 
     if ($ProfileFlag -eq '--profile=pgsql' -or $ProfileFlag -eq '--profile=postgres') {
-        return 'd4'
+        return '4'
     }
 
     ''
     'Escolha o ambiente/banco para subir:'
     'Docker:'
-    '  d1) JSON local (em container)'
-    '  d2) SQLite local (em container)'
-    '  d3) MySQL (container docker)'
-    '  d4) PostgreSQL (container docker)'
+    '  1) JSON local (em container)'
+    '  2) SQLite local (em container)'
+    '  3) MySQL (container docker)'
+    '  4) PostgreSQL (container docker)'
     'PHP local (sem Docker):'
-    '  l1) JSON local (arquivo)'
-    '  l2) SQLite local (arquivo)'
-    '  l3) MySQL (servidor na maquina)'
-    '  l4) PostgreSQL (servidor na maquina)'
+    '  5) JSON local (arquivo)'
+    '  6) SQLite local (arquivo)'
+    '  7) MySQL (servidor na maquina)'
+    '  8) PostgreSQL (servidor na maquina)'
     ''
 
-    $selected = Read-Host 'Opcao [d1]'
+    $selected = Read-Host 'Opcao [1]'
     if ([string]::IsNullOrWhiteSpace($selected)) {
-        $selected = 'd1'
+        $selected = '1'
     }
 
-    if ($selected -notin @('d1', 'd2', 'd3', 'd4', 'l1', 'l2', 'l3', 'l4')) {
+    if ($selected -notin @('1', '2', '3', '4', '5', '6', '7', '8')) {
         [Console]::Error.WriteLine('Opcao invalida.')
         exit 1
     }
@@ -71,51 +71,54 @@ function Split-Command([string] $Command) {
 }
 
 $choice = Get-SelectedChoice
-$mode = $choice.Substring(0, 1)
-$number = $choice.Substring(1, 1)
+$mode = 'docker'
 $profileArgs = @()
 $services = @('php')
 
 Invoke-EnvTool @('--init', $EnvFile, '.env.docker.example')
 
 switch ($choice) {
-    'd1' {
+    '1' {
         $label = 'JSON local (em container)'
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'json', 'DB_JSON_PATH', 'storage/database.json')
     }
-    'd2' {
+    '2' {
         $label = 'SQLite local (em container)'
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'sqlite', 'DB_SQLITE_PATH', 'storage/database.sqlite')
     }
-    'd3' {
+    '3' {
         $label = 'MySQL (container docker)'
         $profileArgs = @('--profile', 'mysql')
         $services = @('php', 'mysql')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'mysql', 'DB_MYSQL_HOST', 'mysql', 'DB_MYSQL_PORT', '3306', 'DB_MYSQL_DATABASE', 'base', 'DB_MYSQL_USERNAME', 'base', 'DB_MYSQL_PASSWORD', 'base', 'DB_MYSQL_CHARSET', 'utf8mb4', 'DB_MYSQL_ROOT_PASSWORD', 'root')
     }
-    'd4' {
+    '4' {
         $label = 'PostgreSQL (container docker)'
         $profileArgs = @('--profile', 'postgres')
         $services = @('php', 'postgres')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'pgsql', 'DB_PGSQL_HOST', 'postgres', 'DB_PGSQL_PORT', '5432', 'DB_PGSQL_DATABASE', 'base', 'DB_PGSQL_USERNAME', 'base', 'DB_PGSQL_PASSWORD', 'base')
     }
-    'l1' {
+    '5' {
         $label = 'JSON local (arquivo)'
+        $mode = 'local'
         Invoke-EnvTool @('--init', $EnvFile, '.env.example')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'json', 'DB_JSON_PATH', 'storage/database.json')
     }
-    'l2' {
+    '6' {
         $label = 'SQLite local (arquivo)'
+        $mode = 'local'
         Invoke-EnvTool @('--init', $EnvFile, '.env.example')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'sqlite', 'DB_SQLITE_PATH', 'storage/database.sqlite')
     }
-    'l3' {
+    '7' {
         $label = 'MySQL (servidor na maquina)'
+        $mode = 'local'
         Invoke-EnvTool @('--init', $EnvFile, '.env.example')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'mysql', 'DB_MYSQL_HOST', '127.0.0.1', 'DB_MYSQL_PORT', '3306', 'DB_MYSQL_DATABASE', 'base', 'DB_MYSQL_USERNAME', 'base', 'DB_MYSQL_PASSWORD', 'base', 'DB_MYSQL_CHARSET', 'utf8mb4', 'DB_MYSQL_ROOT_PASSWORD', 'root')
     }
-    'l4' {
+    '8' {
         $label = 'PostgreSQL (servidor na maquina)'
+        $mode = 'local'
         Invoke-EnvTool @('--init', $EnvFile, '.env.example')
         Invoke-EnvTool @($EnvFile, 'DB_CONNECTION', 'pgsql', 'DB_PGSQL_HOST', '127.0.0.1', 'DB_PGSQL_PORT', '5432', 'DB_PGSQL_DATABASE', 'base', 'DB_PGSQL_USERNAME', 'base', 'DB_PGSQL_PASSWORD', 'base')
     }
@@ -126,7 +129,7 @@ $phpPort = Get-EnvValue $EnvFile 'PHP_PORT' '8000'
 "Banco selecionado: $label"
 "Arquivo $EnvFile atualizado."
 
-if ($mode -eq 'l') {
+if ($mode -eq 'local') {
     ''
     'Modo local: iniciando PHP embutido.'
     "App local em: http://localhost:$phpPort"
