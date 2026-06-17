@@ -28,6 +28,8 @@ base list
 php base.php migrate            # executa migrations pendentes
 php base.php migrate:rollback   # reverte a ultima migration
 php base.php migrate:rollback 3 # reverte as 3 ultimas
+php base.php migrations:list    # lista status das migrations
+php base.php migrations:list 5  # lista ultimas 5 executadas
 php base.php seed               # executa seeders
 php base.php fresh              # migrate + seed
 ```

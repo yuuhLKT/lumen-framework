@@ -11,6 +11,7 @@ use App\Console\Commands\ListCommand;
 use App\Console\Commands\MakeCommand;
 use App\Console\Commands\MakeMigrationCommand;
 use App\Console\Commands\MigrateCommand;
+use App\Console\Commands\MigrationsListCommand;
 use App\Console\Commands\QualityCommand;
 use App\Console\Commands\RollbackCommand;
 use App\Console\Commands\RouteListCommand;
@@ -22,6 +23,7 @@ $app
     ->register(new ListCommand($app))
     ->register(new MigrateCommand())
     ->register(new RollbackCommand())
+    ->register(new MigrationsListCommand())
     ->register(new SeedCommand())
     ->register(new FreshCommand())
     ->register(new MakeCommand('repository'))

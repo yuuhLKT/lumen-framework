@@ -106,6 +106,30 @@ final class MigrationRunner
         throw new RuntimeException("Migration [{$name}] deve retornar uma funcao ou um array com 'up'.");
     }
 
+    /**
+     * Retorna o status das migrations.
+     *
+     * @return array{all: array<int, string>, executed: array<int, string>, pending: array<int, string>, lastExecuted: array<int, string>}
+     */
+    public function status(string $path, int $lastLimit = 3): array
+    {
+        $all = array_map(
+            fn (string $file): string => basename($file),
+            $this->files($path),
+        );
+
+        $executed = $this->executedMigrations();
+        $pending = array_values(array_diff($all, $executed));
+        $lastExecuted = array_slice(array_reverse($executed), 0, $lastLimit);
+
+        return [
+            'all' => $all,
+            'executed' => $executed,
+            'pending' => $pending,
+            'lastExecuted' => $lastExecuted,
+        ];
+    }
+
     /** @return array<int, string> */
     private function files(string $path): array
     {
