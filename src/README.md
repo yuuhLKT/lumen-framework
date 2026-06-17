@@ -2,7 +2,7 @@
 
 Estrutura simples em PHP puro para copiar em desafios e focar na logica do problema, sem depender de framework. Composer e opcional, mas recomendado para testes e ferramentas de qualidade.
 
-A base ja vem com roteador, request/response, controller base, autenticacao Bearer Token, validacao, tratamento de erros, DTOs, repositories, services por convencao, client HTTP, migrations/seeders simples, transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
+A base ja vem com roteador, request/response, controller base, Mini Auth com tokens, validacao, tratamento de erros, DTOs, repositories, services por convencao, client HTTP, migrations/seeders simples, transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
 
 ## Rodar
 
@@ -78,12 +78,12 @@ bootstrap/app.php                   Autoload simples, helpers e .env
 routes/web.php                      Registro das rotas
 config/config.php                   Configuracoes gerais
 config/database.php                 Configuracao do banco
-config/auth.php                     Tokens de autenticacao
+config/auth.php                     Tokens fixos opcionais
 app/Core/Router.php                 Roteador GET/POST/PUT/PATCH/DELETE
 app/Core/Request.php                Query string, body e servidor
 app/Core/Response.php               JSON, HTML, texto e redirect
 app/Core/Controller.php             Atalhos para controllers
-app/Core/Auth.php                   Validacao de Bearer Token
+app/Core/Auth.php                   Integracao do Mini Auth com rotas protegidas
 app/Core/ErrorHandler.php           Tratamento central de excecoes
 app/Database/                       Drivers JSON, SQLite, MySQL e PostgreSQL
 app/Http/                           Client HTTP nativo e fake para testes
@@ -113,7 +113,7 @@ docs/                               Documentacao detalhada
 - [Indice da documentacao](docs/README.md)
 - [Arquitetura e fluxo da requisicao](docs/arquitetura.md)
 - [Rotas e controllers](docs/rotas-e-controllers.md)
-- [Autenticacao Bearer Token](docs/autenticacao.md)
+- [Mini Auth](docs/autenticacao.md)
 - [Request e response](docs/request-e-response.md)
 - [Validacao](docs/validacao.md)
 - [Banco de dados e repositories](docs/banco-e-repositories.md)
@@ -218,24 +218,36 @@ DB_PGSQL_PASSWORD=
 
 Veja `.env.example` para as variaveis disponiveis.
 
-## Proteger rotas
+## Mini Auth
 
-Defina um token no `.env`:
+Cadastro:
 
-```env
-AUTH_TOKEN=dev-token
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Yuri Luiz","email":"yuri@example.com","password":"password123"}'
 ```
+
+Login:
+
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"yuri@example.com","password":"password123"}'
+```
+
+Use o `access_token` retornado nas rotas protegidas:
+
+```bash
+curl http://localhost:8000/auth/me -H "Authorization: Bearer token-gerado"
+```
+
+## Proteger rotas
 
 Proteja a rota com `->auth()`:
 
 ```php
-$router->get('/me', fn () => ['user' => 'admin'])->auth();
-```
-
-Chame enviando Bearer Token:
-
-```bash
-curl http://localhost:8000/me -H "Authorization: Bearer dev-token"
+$router->get('/me', fn ($request) => ['user' => $request->user()])->auth();
 ```
 
 ## Quando usar cada camada

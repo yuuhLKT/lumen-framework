@@ -6,7 +6,7 @@ Esta pasta separa a documentacao por assunto. Use o README da raiz para rodar o 
 
 - [Arquitetura e fluxo da requisicao](arquitetura.md)
 - [Rotas e controllers](rotas-e-controllers.md)
-- [Autenticacao Bearer Token](autenticacao.md)
+- [Mini Auth](autenticacao.md)
 - [Request e response](request-e-response.md)
 - [Validacao](validacao.md)
 - [Banco de dados e repositories](banco-e-repositories.md)
@@ -29,7 +29,7 @@ A base simula o esqueleto minimo de um framework pequeno:
 - `bootstrap/app.php` prepara autoload, helpers, `.env` e timezone.
 - `routes/web.php` registra as rotas.
 - `Router` encontra o handler certo.
-- `Auth` valida Bearer Token quando a rota estiver protegida.
+- `Auth` valida Bearer Token de usuario quando a rota estiver protegida.
 - `Request` entrega query string, body e dados do servidor.
 - `Controller` ajuda a validar e responder.
 - `Response` envia JSON, HTML, texto ou redirect.

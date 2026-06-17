@@ -6,6 +6,9 @@ namespace App\Core;
 
 final class Request
 {
+    /** @var array<string, mixed>|null */
+    private ?array $user = null;
+
     /**
      * @param array<string, mixed> $body
      * @param array<string, string> $headers
@@ -79,6 +82,18 @@ final class Request
         $token = trim($matches[1]);
 
         return $token === '' ? null : $token;
+    }
+
+    /** @param array<string, mixed>|null $user */
+    public function setUser(?array $user): void
+    {
+        $this->user = $user;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function user(): ?array
+    {
+        return $this->user;
     }
 
     /**

@@ -1,63 +1,135 @@
-# Autenticacao Bearer Token
+# Mini Auth
 
-A base possui autenticacao simples por Bearer Token para proteger rotas sem adicionar framework, banco de usuarios ou JWT.
+A base possui um Mini Auth real com usuarios, senha com hash e tokens Bearer persistidos. Ele foi feito para estudos, APIs pequenas e desafios backend sem adicionar JWT, sessao ou framework.
 
-## Configurar token
+## Como funciona
 
-No `.env`:
+- Usuarios ficam na tabela `users`.
+- Tokens ficam na tabela `auth_tokens`.
+- Senhas sao salvas com `password_hash()`.
+- O token retornado no login/cadastro e aleatorio, opaco e exibido uma unica vez.
+- No banco fica apenas o hash SHA-256 do token.
+- Rotas protegidas usam `Authorization: Bearer <token>`.
+- `Request::user()` retorna o usuario autenticado, sem `password_hash`.
 
-```env
-AUTH_TOKEN=dev-token
+## Rotas prontas
+
+```text
+POST /auth/register
+POST /auth/login
+GET  /auth/me
+POST /auth/logout
 ```
 
-Tambem e possivel aceitar varios tokens:
+`/auth/me` e `/auth/logout` sao protegidas com `->auth()`.
 
-```env
-AUTH_TOKENS=mobile-token,admin-token,external-token
+## Cadastrar usuario
+
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Yuri Luiz","email":"yuri@example.com","password":"password123"}'
 ```
 
-As duas variaveis podem ser usadas juntas. Tokens vazios sao ignorados.
+Resposta:
 
-## Proteger uma rota
+```json
+{
+  "token_type": "Bearer",
+  "access_token": "token-gerado",
+  "user": {
+    "id": 1,
+    "name": "Yuri Luiz",
+    "email": "yuri@example.com",
+    "created_at": "2026-01-01T10:00:00-03:00",
+    "updated_at": "2026-01-01T10:00:00-03:00"
+  }
+}
+```
+
+## Login
+
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"yuri@example.com","password":"password123"}'
+```
+
+Cada login gera um novo token.
+
+## Buscar usuario autenticado
+
+```bash
+curl http://localhost:8000/auth/me \
+  -H "Authorization: Bearer token-gerado"
+```
+
+Resposta:
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "Yuri Luiz",
+    "email": "yuri@example.com",
+    "created_at": "2026-01-01T10:00:00-03:00",
+    "updated_at": "2026-01-01T10:00:00-03:00"
+  }
+}
+```
+
+## Logout
+
+```bash
+curl -X POST http://localhost:8000/auth/logout \
+  -H "Authorization: Bearer token-gerado"
+```
+
+Resposta: HTTP `204 No Content`.
+
+O token usado na requisicao e revogado e nao autentica mais.
+
+## Proteger rotas
 
 Use `->auth()` logo depois da rota:
 
 ```php
-$router->get('/me', fn () => ['user' => 'admin'])->auth();
+$router->get('/profile', [ProfileController::class, 'show'])->auth();
 ```
 
-Com controller:
+Dentro do controller:
 
 ```php
-use App\Controllers\ProductController;
-
-$router->post('/products', [ProductController::class, 'store'])->auth();
-$router->put('/products/{id}', [ProductController::class, 'update'])->auth();
-$router->delete('/products/{id}', [ProductController::class, 'destroy'])->auth();
+public function show(Request $request, array $params): Response
+{
+    return $this->ok([
+        'user' => $request->user(),
+    ]);
+}
 ```
 
 Rotas sem `->auth()` continuam publicas.
 
-## Fazer requisicao autenticada
+## Regras de validacao prontas
 
-Envie o header `Authorization` no formato `Bearer token`:
+Cadastro:
 
-```bash
-curl http://localhost:8000/me -H "Authorization: Bearer dev-token"
+```text
+name: required|string|min:3|max:255
+email: required|email
+password: required|string|min:8|max:255
 ```
 
-Exemplo com JSON:
+Login:
 
-```bash
-curl -X POST http://localhost:8000/products \
-  -H "Authorization: Bearer dev-token" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Notebook"}'
+```text
+email: required|email
+password: required|string
 ```
 
-## Resposta quando falhar
+## Erros comuns
 
-Token ausente ou invalido retorna HTTP `401`:
+Token ausente ou invalido:
 
 ```json
 {
@@ -65,64 +137,48 @@ Token ausente ou invalido retorna HTTP `401`:
 }
 ```
 
-## Ler token manualmente
+Credenciais invalidas:
 
-Normalmente voce nao precisa fazer isso, porque `->auth()` ja valida antes do controller. Se precisar, use:
-
-```php
-$token = $request->bearerToken();
+```json
+{
+  "error": "Credenciais invalidas."
+}
 ```
 
-Ou leia o header diretamente:
+Email duplicado:
 
-```php
-$authorization = $request->header('Authorization');
+```json
+{
+  "error": "Email ja cadastrado."
+}
 ```
 
-## Como funciona internamente
+## Classes principais
 
-- `Request::capture()` normaliza os headers da requisicao.
-- `Request::bearerToken()` extrai o token do header `Authorization`.
-- `Router::auth()` marca a ultima rota registrada como protegida.
-- `Router::dispatch()` chama `Auth::check()` antes do handler de rotas protegidas.
-- `Auth::check()` compara o token recebido com os tokens configurados em `config/auth.php` usando `hash_equals()`.
+- `App\Controllers\AuthController`: endpoints HTTP de auth.
+- `App\Services\AuthService`: regra de cadastro, login, busca por token e logout.
+- `App\Repositories\UserRepository`: acesso a usuarios.
+- `App\Repositories\AuthTokenRepository`: acesso aos tokens.
+- `App\Core\Auth`: integracao com `Router::auth()`.
+- `App\Core\Request::user()`: usuario autenticado da requisicao.
 
-## Exemplo completo
+## Token fixo opcional
 
-`.env`:
+A base ainda aceita tokens fixos no `.env` para scripts internos ou testes muito simples:
 
 ```env
 AUTH_TOKEN=dev-token
+AUTH_TOKENS=mobile-token,admin-token
 ```
 
-`routes/web.php`:
+Esses tokens passam no `->auth()`, mas nao representam um usuario. Portanto, `Request::user()` retorna `null` quando a autenticacao veio de token fixo.
 
-```php
-$router->get('/public', fn () => ['public' => true]);
-$router->get('/private', fn () => ['private' => true])->auth();
-```
-
-Teste publico:
-
-```bash
-curl http://localhost:8000/public
-```
-
-Teste protegido sem token:
-
-```bash
-curl http://localhost:8000/private
-```
-
-Teste protegido com token:
-
-```bash
-curl http://localhost:8000/private -H "Authorization: Bearer dev-token"
-```
+Para APIs com usuario autenticado, prefira sempre `/auth/register` ou `/auth/login`.
 
 ## Cuidados
 
-- Bearer Token simples e bom para estudos, scripts internos e desafios pequenos.
-- Em projeto real, use HTTPS sempre.
-- Nao coloque token real em README, prints ou commits.
-- Troque o token se ele for exposto.
+- Use HTTPS em qualquer ambiente fora da maquina local.
+- Nao salve tokens reais em README, prints ou commits.
+- O token bruto so aparece na resposta de cadastro/login.
+- O banco guarda apenas `token_hash`.
+- Para projetos maiores, considere expiracao de tokens, refresh tokens, permissoes, roles e rate limit de login.
