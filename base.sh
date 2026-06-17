@@ -62,10 +62,10 @@ else
     rm -rf "$TARGET_DIR/.phpunit.cache" "$TARGET_DIR/.php-cs-fixer.cache" "$TARGET_DIR/coverage"
 fi
 
-if [[ -f "$TARGET_DIR/.env.docker.example" ]]; then
-    cp "$TARGET_DIR/.env.docker.example" "$TARGET_DIR/.env"
-elif [[ -f "$TARGET_DIR/.env.example" ]]; then
+if [[ -f "$TARGET_DIR/.env.example" ]]; then
     cp "$TARGET_DIR/.env.example" "$TARGET_DIR/.env"
+elif [[ -f "$TARGET_DIR/.env.docker.example" ]]; then
+    cp "$TARGET_DIR/.env.docker.example" "$TARGET_DIR/.env"
 fi
 
 if [[ -f "$TARGET_DIR/composer.json" && ! -d "$TARGET_DIR/vendor" ]]; then
@@ -89,27 +89,34 @@ echo
 echo "Proximos passos:"
 echo "  cd \"$TARGET_DIR\""
 echo
-echo "  Rodar local sem Docker:"
-echo "    php -S localhost:8000 -t public"
+echo "  Rodar PHP local (recomendado para comecar):"
+echo "    make local"
 echo "    curl http://localhost:8000/health"
-echo "    make serve"
 echo
-echo "  Rodar com Docker:"
-echo "    docker compose build php"
-echo "    docker compose up php"
-echo "    (se composer install nao rodou local, use: docker compose run --rm php composer install)"
+echo "  Rodar PHP local com banco em Docker:"
+echo "    make db-up-mysql   # sobe somente MySQL e ajusta .env para 127.0.0.1"
+echo "    make local"
+echo "    # ou: make db-up-pg && make local"
+echo
+echo "  Rodar tudo pelo fluxo Docker/auto:"
+echo "    make up            # detecta Docker, escolhe banco e sobe o app"
+echo "    make down          # para containers do compose"
 echo
 echo "  Banco de dados:"
 echo "    make db-json     # JSON em storage/database.json (padrao)"
 echo "    make db-sqlite   # SQLite em storage/database.sqlite"
-echo "    make db-mysql    # MySQL via Docker"
-echo "    make db-pgsql    # PostgreSQL via Docker"
+echo "    make db-mysql    # configura MySQL no .env (host depende do runner)"
+echo "    make db-pgsql    # configura PostgreSQL no .env (host depende do runner)"
+echo "    make db-up-mysql # sobe somente MySQL no Docker para PHP local"
+echo "    make db-up-pg    # sobe somente PostgreSQL no Docker para PHP local"
+echo "    make db-down     # para bancos Docker"
 echo "    make fresh       # migrate + seed"
 echo "    make migrate     # roda migrations"
 echo "    make seed        # roda seeders"
 echo
 echo "  Testes e qualidade (precisa de vendor/):"
 echo "    make deps        # composer install"
+echo "    make local-test  # PHPUnit no host"
 echo "    make test        # PHPUnit"
 echo "    make analyse     # PHPStan"
 echo "    make lint"
