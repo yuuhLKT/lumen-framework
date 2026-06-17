@@ -1,7 +1,18 @@
 COMPOSE ?= docker compose
 COMPOSER ?= composer
 PHP ?= php
+SH ?= sh
 ENV_FILE ?= .env
+
+ifeq ($(OS),Windows_NT)
+ENV_SCRIPT = powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/env.ps1
+UP_DOCKER_SCRIPT = powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/up-docker.ps1
+SCRIPT_VALIDATE = powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/validate-scripts.ps1
+else
+ENV_SCRIPT = $(SH) tools/env.sh
+UP_DOCKER_SCRIPT = $(SH) tools/up-docker.sh
+SCRIPT_VALIDATE = $(SH) -n tools/env.sh && $(SH) -n tools/up-docker.sh
+endif
 
 # RUNNER controla o executor usado pelos alvos compartilhados.
 #   auto   - padrao. Usa docker se o daemon estiver disponivel, senao local.
@@ -25,9 +36,10 @@ endif
 endif
 
 ifeq ($(RUNNER),docker)
-UP_RUN         = $(COMPOSE) up --build php
-UP_MYSQL_RUN   = $(COMPOSE) --profile mysql up --build php mysql
-UP_PG_RUN      = $(COMPOSE) --profile postgres up --build php postgres
+ENV_RUN        = $(ENV_SCRIPT)
+UP_RUN         = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)"
+UP_MYSQL_RUN   = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=mysql
+UP_PG_RUN      = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=pgsql
 DOWN_RUN       = $(COMPOSE) down
 DOWN_V_RUN     = $(COMPOSE) down -v
 BUILD_RUN      = $(COMPOSE) build php
@@ -39,6 +51,7 @@ ENV_TEMPLATE   = .env.docker.example
 DB_HOST_MYSQL  = mysql
 DB_HOST_PG     = postgres
 else
+ENV_RUN        = $(PHP) tools/env.php
 UP_RUN         = $(PHP) -S 0.0.0.0:8000 -t public
 UP_MYSQL_RUN   = $(error MySQL em modo local exige um MySQL rodando na maquina. Ajuste DB_MYSQL_HOST no .env ou use 'make docker-up'.)
 UP_PG_RUN      = $(error Postgres em modo local exige um PostgreSQL rodando na maquina. Ajuste DB_PGSQL_HOST no .env ou use 'make docker-up'.)
@@ -124,46 +137,46 @@ runner:
 	@echo "UP_RUN:          $(UP_RUN)"
 
 env:
-	@$(PHP) tools/env.php --init $(ENV_FILE) $(ENV_TEMPLATE)
+	@$(ENV_RUN) --init $(ENV_FILE) $(ENV_TEMPLATE)
 
 debug-on: env
-	@$(PHP) tools/env.php $(ENV_FILE) APP_DEBUG true
+	@$(ENV_RUN) $(ENV_FILE) APP_DEBUG true
 
 debug-off: env
-	@$(PHP) tools/env.php $(ENV_FILE) APP_DEBUG false
+	@$(ENV_RUN) $(ENV_FILE) APP_DEBUG false
 
 up: env
-	@$(PHP) tools/up.php $(ENV_FILE) "$(COMPOSE)" $(RUNNER)
+	@$(UP_RUN)
 
 up-mysql: env
-	@$(PHP) tools/up.php $(ENV_FILE) "$(COMPOSE)" $(RUNNER) --profile=mysql
+	@$(UP_MYSQL_RUN)
 
 up-pg: env
-	@$(PHP) tools/up.php $(ENV_FILE) "$(COMPOSE)" $(RUNNER) --profile=pgsql
+	@$(UP_PG_RUN)
 
 db-json: env
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION json DB_JSON_PATH storage/database.json
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION json DB_JSON_PATH storage/database.json
 
 db-sqlite: env
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite
 
 db-mysql: env
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST $(DB_HOST_MYSQL) DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST $(DB_HOST_MYSQL) DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
 
 db-pgsql: env
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST $(DB_HOST_PG) DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST $(DB_HOST_PG) DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
 
 db-postgres: db-pgsql
 
 db-up-mysql:
-	@$(PHP) tools/env.php --init $(ENV_FILE) .env.example
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
+	@$(ENV_SCRIPT) --init $(ENV_FILE) .env.example
+	@$(ENV_SCRIPT) $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
 	@$(COMPOSE) --profile mysql up -d mysql
 	@echo "MySQL Docker pronto. Rode: make local"
 
 db-up-pg:
-	@$(PHP) tools/env.php --init $(ENV_FILE) .env.example
-	@$(PHP) tools/env.php $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
+	@$(ENV_SCRIPT) --init $(ENV_FILE) .env.example
+	@$(ENV_SCRIPT) $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
 	@$(COMPOSE) --profile postgres up -d postgres
 	@echo "PostgreSQL Docker pronto. Rode: make local"
 
@@ -193,9 +206,11 @@ down-v:
 validate:
 ifeq ($(RUNNER),docker)
 	@$(COMPOSE) --profile mysql --profile postgres config >/dev/null
-endif
+	@$(SCRIPT_VALIDATE)
+else
 	@$(PHP) -l tools/env.php
 	@$(PHP) -l tools/up.php
+endif
 
 deps:
 	@$(COMPOSER) install
@@ -232,7 +247,7 @@ qa: quality
 
 # Aliases locais - rodam PHP/composer no host independentemente da deteccao.
 local:
-	@$(PHP) tools/env.php --init $(ENV_FILE) .env.example
+	@$(ENV_SCRIPT) --init $(ENV_FILE) .env.example
 	@$(PHP) -S 0.0.0.0:8000 -t public
 
 local-up: local

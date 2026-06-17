@@ -87,6 +87,7 @@ Resposta esperada:
 - Extensao `pdo_pgsql` somente se voce quiser usar PostgreSQL.
 - Nenhuma dependencia externa obrigatoria.
 - Composer opcional para PHPUnit, PHPStan e PHP-CS-Fixer.
+- Docker Compose, PowerShell (Windows) ou `sh` (Linux/WSL) sao suficientes para rodar pelo `make up` sem PHP local.
 
 ## Estrutura
 
@@ -119,7 +120,11 @@ storage/database.json               Banco JSON inicial
 utils/helpers.php                   Helpers globais
 docker-compose.yml                  PHP e bancos via Docker
 Makefile                            Atalhos para Docker, banco e ngrok local
-tools/env.php                       Atualizador simples do .env
+tools/env.php                       Atualizador simples do .env (PHP local)
+tools/env.sh                        Atualizador simples do .env (Linux/WSL)
+tools/env.ps1                       Atualizador simples do .env (Windows)
+tools/up-docker.sh                  Sobe Docker via menu interativo (Linux/WSL)
+tools/up-docker.ps1                 Sobe Docker via menu interativo (Windows)
 tools/migrate.php                   Executa migrations
 tools/seed.php                      Executa seeders
 tests/                              Testes PHPUnit

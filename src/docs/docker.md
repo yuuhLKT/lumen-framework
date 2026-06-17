@@ -36,7 +36,8 @@ Requisitos:
 
 - `make` instalado no sistema.
 - Docker Compose disponivel como `docker compose` para o modo Docker.
-- PHP local disponivel para o script `tools/env.php`.
+- Linux/WSL: `sh` disponivel. Windows nativo: PowerShell disponivel.
+- PHP local e necessario apenas para `RUNNER=local`, `make local` e comandos de qualidade/testes fora do container.
 - ngrok instalado e ja configurado no seu PC para o modo Docker com `make up`.
 
 Ver comandos disponiveis:
