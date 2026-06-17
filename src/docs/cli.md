@@ -2,6 +2,8 @@
 
 A base possui um CLI proprio em `base.php` (e wrappers `base` para Unix e `base.bat` para Windows).
 
+O Makefile continua existindo, mas agora e focado em Docker e configuracao de ambiente (`.env`, banco, subir/parar containers). Para migrations, seeders, testes, qualidade e servidor local, prefira o CLI.
+
 ## Uso
 
 ```bash

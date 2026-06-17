@@ -16,10 +16,8 @@ endif
 
 # RUNNER controla o executor usado pelos alvos compartilhados.
 #   auto   - padrao. Usa docker se o daemon estiver disponivel, senao local.
-#   docker - força docker compose em up/down/build/shell/logs/ps/validate.
-#   local  - força PHP + composer locais nos mesmos alvos.
-# Pode ser sobrescrito por chamada: make RUNNER=local up
-# Ou usar os aliases local-*:     make local-up
+#   docker - forca docker compose em up/down/build/shell/logs/ps/validate.
+#   local  - forca PHP + composer locais nos mesmos alvos.
 RUNNER ?= auto
 
 ifeq ($(filter auto docker local,$(RUNNER)),)
@@ -37,8 +35,6 @@ endif
 
 ifeq ($(RUNNER),docker)
 ENV_RUN        = $(ENV_SCRIPT)
-# Forca um pseudo-TTY quando o make e executado sem terminal real (IDE/WSL).
-# 'script -q -c' e' portavel em Linux/WSL; se nao existir, o script cai no JSON padrao.
 UP_RUN         = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)"' /dev/null
 UP_MYSQL_RUN   = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=mysql' /dev/null
 UP_PG_RUN      = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=pgsql' /dev/null
@@ -72,12 +68,9 @@ endif
 .DEFAULT_GOAL := help
 
 .PHONY: help runner env up up-mysql up-pg down down-v build php-shell logs ps validate \
-        local db-up-mysql db-up-pg db-up-postgres db-down \
-        local-up local-down local-down-v local-build local-shell local-logs local-ps local-validate \
-        local-deps local-serve local-migrate local-seed local-fresh local-test local-analyse \
-        local-lint local-format local-format-check local-quality local-qa \
+        local local-down local-down-v local-build local-shell local-logs local-ps local-validate \
         debug-on debug-off db-json db-sqlite db-mysql db-pgsql db-postgres \
-        deps serve migrate seed fresh test analyse lint format format-check quality qa
+        db-up-mysql db-up-pg db-up-postgres db-down
 
 help:
 	@echo "Base PHP - Makefile"
@@ -112,32 +105,25 @@ help:
 	@echo "  make ps             Containers / aviso no modo local"
 	@echo "  make validate       Valida compose / lint dos tools"
 	@echo
-	@echo "Aliases locais (forcam RUNNER=local):"
+	@echo "Modo local (forca RUNNER=local):"
 	@echo "  make local          Sobe apenas o PHP local, usando o .env atual"
-	@echo "  make local-up local-down local-build local-shell local-validate"
-	@echo "  make local-test local-analyse local-lint local-format-check local-quality"
+	@echo "  make local-down     Aviso de parada no modo local"
+	@echo "  make local-build    composer install"
+	@echo "  make local-shell    REPL PHP local"
+	@echo "  make local-validate Lint dos tools"
 	@echo
-	@echo "Banco de dados / migrations:"
-	@echo "  make deps           composer install"
-	@echo "  make migrate        Roda migrations"
-	@echo "  make seed           Roda seeders"
-	@echo "  make fresh          migrate + seed"
-	@echo "  make serve          php -S localhost:8000 -t public"
-	@echo
-	@echo "CLI proprio (alternativa ao make):"
+	@echo "Outros comandos (use o CLI):"
 	@echo "  php base.php list              lista comandos"
 	@echo "  php base.php migrate           roda migrations"
+	@echo "  php base.php migrate:rollback  reverte migrations"
+	@echo "  php base.php migrations:list   status das migrations"
 	@echo "  php base.php seed              roda seeders"
+	@echo "  php base.php fresh             migrate + seed"
 	@echo "  php base.php serve             sobe servidor local"
-	@echo
-	@echo "Qualidade:"
-	@echo "  make test           PHPUnit"
-	@echo "  make analyse        PHPStan"
-	@echo "  make lint           Lint proprio em tools/lint.php"
-	@echo "  make format         PHP CS Fixer (altera arquivos)"
-	@echo "  make format-check   PHP CS Fixer (dry-run)"
-	@echo "  make quality        lint + format-check + analyse + test"
-	@echo "  make qa             alias de quality"
+	@echo "  php base.php test              PHPUnit"
+	@echo "  php base.php analyse           PHPStan"
+	@echo "  php base.php lint              lint proprio"
+	@echo "  php base.php format            formata com PHP CS Fixer"
 
 runner:
 	@echo "RUNNER resolvido: $(RUNNER)"
@@ -220,45 +206,9 @@ else
 	@$(PHP) -l tools/up.php
 endif
 
-deps:
-	@$(COMPOSER) install
-
-serve:
-	@$(PHP) -S localhost:8000 -t public
-
-migrate:
-	@$(COMPOSER) migrate
-
-seed:
-	@$(COMPOSER) seed
-
-fresh: migrate seed
-
-test:
-	@$(COMPOSER) test
-
-analyse:
-	@$(COMPOSER) analyse
-
-lint:
-	@$(COMPOSER) lint
-
-format:
-	@$(COMPOSER) format
-
-format-check:
-	@$(COMPOSER) format-check
-
-quality: lint format-check analyse test
-
-qa: quality
-
-# Aliases locais - rodam PHP/composer no host independentemente da deteccao.
 local:
 	@$(ENV_SCRIPT) --init $(ENV_FILE) .env.example
 	@$(PHP) -S 0.0.0.0:8000 -t public
-
-local-up: local
 
 local-down:
 	@echo "Nada para parar no modo local (servidor roda em foreground com Ctrl+C)."
@@ -281,27 +231,3 @@ local-ps:
 local-validate:
 	@$(PHP) -l tools/env.php
 	@$(PHP) -l tools/up.php
-
-local-deps:      deps
-
-local-serve:     serve
-
-local-migrate:   migrate
-
-local-seed:      seed
-
-local-fresh:     fresh
-
-local-test:      test
-
-local-analyse:   analyse
-
-local-lint:      lint
-
-local-format:    format
-
-local-format-check: format-check
-
-local-quality:   quality
-
-local-qa:        qa

@@ -86,13 +86,13 @@ composer format-check
 
 ## Docker e Makefile
 
-Com Docker:
+O Makefile gerencia Docker e configuracao de ambiente. Com Docker disponivel:
 
 ```bash
 make up
 ```
 
-O Makefile detecta se o Docker esta disponivel. Com Docker, abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, sobe o PHP local.
+Abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, sobe o PHP local.
 
 Para forcar PHP local:
 
@@ -110,7 +110,29 @@ make db-up-pg
 make local
 ```
 
-Tambem existem aliases `local-*`, como `make local-test`, `make local-analyse` e `make local-quality`.
+Outros comandos do Makefile:
+
+```bash
+make env              # cria/atualiza .env
+make db-json          # configura banco JSON
+make db-sqlite        # configura SQLite
+make db-mysql         # configura MySQL
+make db-pgsql         # configura PostgreSQL
+make down             # para containers
+make build            # docker compose build / composer install
+make validate         # valida compose / lint dos tools
+make help             # lista todos os comandos
+```
+
+Para migrations, seeders, testes, qualidade e servidor local, use o CLI:
+
+```bash
+php base.php migrate
+php base.php seed
+php base.php test
+php base.php analyse
+php base.php serve
+```
 
 ## Requisitos
 
