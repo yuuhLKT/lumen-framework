@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\Middleware;
+use App\Http\Middleware\Pipeline;
 use App\Support\HttpStatus;
 
 final class Router
 {
     /**
-     * @var array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, auth: bool}>>
+     * @var array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, middlewares: array<int, class-string<Middleware>>}>>
      */
     private array $routes = [];
 
@@ -55,11 +58,13 @@ final class Router
                 continue;
             }
 
-            if ($route['auth'] && !Auth::check($request)) {
-                return Response::json(['error' => 'Token de autenticação inválido ou ausente.'], HttpStatus::UNAUTHORIZED);
-            }
+            $handler = function (Request $request) use ($route, $params): Response {
+                return $this->runHandler($route['handler'], $request, $params);
+            };
 
-            return $this->runHandler($route['handler'], $request, $params);
+            $pipeline = new Pipeline($route['middlewares']);
+
+            return $pipeline->then($handler)($request);
         }
 
         if ($this->pathExistsForAnotherMethod($request)) {
@@ -77,7 +82,7 @@ final class Router
         $this->routes[$method][] = [
             'path' => $this->normalizePath($path),
             'handler' => $handler,
-            'auth' => false,
+            'middlewares' => [],
         ];
 
         $this->lastRoute = [
@@ -90,11 +95,22 @@ final class Router
 
     public function auth(): self
     {
+        return $this->middleware([AuthMiddleware::class]);
+    }
+
+    /**
+     * @param array<int, class-string<Middleware>> $middlewares
+     */
+    public function middleware(array $middlewares): self
+    {
         if ($this->lastRoute === null) {
             return $this;
         }
 
-        $this->routes[$this->lastRoute['method']][$this->lastRoute['index']]['auth'] = true;
+        $this->routes[$this->lastRoute['method']][$this->lastRoute['index']]['middlewares'] = array_merge(
+            $this->routes[$this->lastRoute['method']][$this->lastRoute['index']]['middlewares'],
+            $middlewares,
+        );
 
         return $this;
     }
@@ -149,6 +165,14 @@ final class Router
         }
 
         return Response::html((string) $result);
+    }
+
+    /**
+     * @return array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, middlewares: array<int, class-string<Middleware>>}>>
+     */
+    public function routes(): array
+    {
+        return $this->routes;
     }
 
     private function normalizePath(string $path): string
