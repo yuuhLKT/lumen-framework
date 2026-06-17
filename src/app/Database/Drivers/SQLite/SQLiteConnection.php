@@ -19,7 +19,7 @@ final class SQLiteConnection implements DatabaseConnection
         $directory = dirname($this->path);
 
         if (!is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)) {
-            throw new RuntimeException("Nao foi possivel criar a pasta [{$directory}].");
+            throw new RuntimeException("Não foi possível criar a pasta [{$directory}].");
         }
 
         $this->pdo = new PDO('sqlite:' . $this->path);

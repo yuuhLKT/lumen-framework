@@ -25,7 +25,7 @@ final class Validator
             $isNullable = in_array('nullable', $fieldRules, true);
 
             if ($isRequired && self::isEmpty($value)) {
-                $errors[$field][] = 'O campo e obrigatorio.';
+                $errors[$field][] = 'O campo é obrigatório.';
                 continue;
             }
 

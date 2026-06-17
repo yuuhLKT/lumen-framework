@@ -39,7 +39,7 @@ abstract readonly class BaseDTO
                 continue;
             }
 
-            throw new InvalidArgumentException("Campo [{$name}] nao informado para o DTO " . static::class . '.');
+            throw new InvalidArgumentException("Campo [{$name}] não informado para o DTO " . static::class . '.');
         }
 
         /** @var static $dto */

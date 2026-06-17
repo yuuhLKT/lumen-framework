@@ -53,7 +53,7 @@ final class AuthController extends Controller
         $user = $request->user();
 
         if ($user === null) {
-            $this->abort(HttpStatus::UNAUTHORIZED, 'Usuario autenticado nao encontrado.');
+            $this->abort(HttpStatus::UNAUTHORIZED, 'Usuário autenticado não encontrado.');
         }
 
         return $this->ok(['user' => $user]);

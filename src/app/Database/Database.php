@@ -28,7 +28,7 @@ final class Database
         $connectionConfig = $config['connections'][$name] ?? null;
 
         if (!is_array($connectionConfig)) {
-            throw new InvalidArgumentException("Conexao de banco [{$name}] nao configurada.");
+            throw new InvalidArgumentException("Conexão de banco [{$name}] não configurada.");
         }
 
         return self::$connections[$name] = match ($name) {
@@ -36,7 +36,7 @@ final class Database
             'sqlite' => new SQLiteConnection((string) $connectionConfig['path']),
             'mysql' => new MySQLConnection($connectionConfig),
             'pgsql', 'postgres' => new PostgreSQLConnection($connectionConfig),
-            default => throw new InvalidArgumentException("Driver de banco [{$name}] nao suportado."),
+            default => throw new InvalidArgumentException("Driver de banco [{$name}] não suportado."),
         };
     }
 }

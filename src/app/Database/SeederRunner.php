@@ -30,7 +30,7 @@ final class SeederRunner
             $seeder = require $file;
 
             if (!is_callable($seeder)) {
-                throw new RuntimeException("Seeder [{$name}] deve retornar uma funcao.");
+                throw new RuntimeException("Seeder [{$name}] deve retornar uma função.");
             }
 
             $this->connection->transaction(fn () => $seeder($this->connection));

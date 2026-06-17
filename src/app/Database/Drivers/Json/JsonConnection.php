@@ -18,7 +18,7 @@ final class JsonConnection implements DatabaseConnection
         $directory = dirname($this->path);
 
         if (!is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)) {
-            throw new RuntimeException("Nao foi possivel criar a pasta [{$directory}].");
+            throw new RuntimeException("Não foi possível criar a pasta [{$directory}].");
         }
 
         if (!is_file($this->path)) {
@@ -38,13 +38,13 @@ final class JsonConnection implements DatabaseConnection
 
     public function execute(string $sql): void
     {
-        throw new RuntimeException('O driver JSON nao executa SQL. Use migrations em PHP ou um driver SQL.');
+        throw new RuntimeException('O driver JSON não executa SQL. Use migrations em PHP ou um driver SQL.');
     }
 
     public function beginTransaction(): void
     {
         if ($this->transactionData !== null) {
-            throw new RuntimeException('Ja existe uma transacao JSON em andamento.');
+            throw new RuntimeException('Já existe uma transação JSON em andamento.');
         }
 
         $this->transactionData = $this->readFromFile();
@@ -53,7 +53,7 @@ final class JsonConnection implements DatabaseConnection
     public function commit(): void
     {
         if ($this->transactionData === null) {
-            throw new RuntimeException('Nao existe transacao JSON em andamento.');
+            throw new RuntimeException('Não existe transação JSON em andamento.');
         }
 
         $data = $this->transactionData;
@@ -64,7 +64,7 @@ final class JsonConnection implements DatabaseConnection
     public function rollBack(): void
     {
         if ($this->transactionData === null) {
-            throw new RuntimeException('Nao existe transacao JSON em andamento.');
+            throw new RuntimeException('Não existe transação JSON em andamento.');
         }
 
         $this->transactionData = null;
@@ -119,7 +119,7 @@ final class JsonConnection implements DatabaseConnection
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         if ($json === false || file_put_contents($this->path, $json) === false) {
-            throw new RuntimeException("Nao foi possivel salvar o banco JSON [{$this->path}].");
+            throw new RuntimeException("Não foi possível salvar o banco JSON [{$this->path}].");
         }
     }
 }

@@ -78,13 +78,13 @@ if ($profileFlag !== null) {
         echo "  {$number}) {$choice['label']}" . PHP_EOL;
     }
 
-    echo PHP_EOL . 'Opcao [1]: ';
+    echo PHP_EOL . 'Opção [1]: ';
 
     $selected = trim((string) fgets(STDIN));
     $selected = $selected === '' ? '1' : $selected;
 
     if (!isset($choices[$selected])) {
-        fwrite(STDERR, "Opcao invalida.\n");
+        fwrite(STDERR, "Opção inválida.\n");
         exit(1);
     }
 
@@ -104,7 +104,7 @@ if ($isLocal) {
 
     if (!($choice['local_only'] ?? false)) {
         $databaseHost = $choice['updates']['DB_CONNECTION'] === 'pgsql' ? $pgHost : $mysqlHost;
-        echo "Garanta que o servidor de banco local esta rodando em {$databaseHost}." . PHP_EOL;
+        echo "Garanta que o servidor de banco local está rodando em {$databaseHost}." . PHP_EOL;
     }
 
     $port = envValue($envFile, 'PHP_PORT', '8000');
@@ -122,7 +122,7 @@ echo 'Ngrok local vai apontar para http://localhost:' . envValue($envFile, 'PHP_
 echo PHP_EOL;
 
 if (!commandExists('ngrok')) {
-    fwrite(STDERR, 'Ngrok nao encontrado no PATH. Instale/configure ou rode manualmente: ngrok http http://localhost:' . envValue($envFile, 'PHP_PORT', '8000') . PHP_EOL);
+    fwrite(STDERR, 'Ngrok não encontrado no PATH. Instale/configure ou rode manualmente: ngrok http http://localhost:' . envValue($envFile, 'PHP_PORT', '8000') . PHP_EOL);
     exit(1);
 }
 
@@ -172,7 +172,7 @@ function startNgrok(int $port): mixed
     ], $pipes);
 
     if (!is_resource($process)) {
-        echo "Nao foi possivel iniciar ngrok automaticamente. Rode manualmente: {$command}" . PHP_EOL;
+        echo "Não foi possível iniciar ngrok automaticamente. Rode manualmente: {$command}" . PHP_EOL;
         return null;
     }
 

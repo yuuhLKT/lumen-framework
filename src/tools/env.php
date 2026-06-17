@@ -42,7 +42,7 @@ if (realpath($argv[0] ?? '') === realpath(__FILE__)) {
         $value = $args[$index + 1];
 
         if ($key === '' || !preg_match('/^[A-Z_][A-Z0-9_]*$/', $key)) {
-            fwrite(STDERR, "Chave invalida: {$key}\n");
+            fwrite(STDERR, "Chave inválida: {$key}\n");
             exit(1);
         }
 
@@ -72,7 +72,7 @@ function initEnv(string $path, ?string $template = null): void
     }
 
     if (!copy($template, $path)) {
-        fwrite(STDERR, "Nao foi possivel criar {$path} a partir de {$template}.\n");
+        fwrite(STDERR, "Não foi possível criar {$path} a partir de {$template}.\n");
         exit(1);
     }
 }
@@ -83,7 +83,7 @@ function writeEnv(string $path, array $updates): void
     $lines = file($path, FILE_IGNORE_NEW_LINES);
 
     if ($lines === false) {
-        fwrite(STDERR, "Nao foi possivel ler {$path}.\n");
+        fwrite(STDERR, "Não foi possível ler {$path}.\n");
         exit(1);
     }
 
@@ -115,7 +115,7 @@ function writeEnv(string $path, array $updates): void
     $content = implode(PHP_EOL, $lines) . PHP_EOL;
 
     if (file_put_contents($path, $content) === false) {
-        fwrite(STDERR, "Nao foi possivel salvar {$path}.\n");
+        fwrite(STDERR, "Não foi possível salvar {$path}.\n");
         exit(1);
     }
 }

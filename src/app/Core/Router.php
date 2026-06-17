@@ -49,17 +49,17 @@ final class Router
             }
 
             if ($route['auth'] && !Auth::check($request)) {
-                return Response::json(['error' => 'Token de autenticacao invalido ou ausente.'], HttpStatus::UNAUTHORIZED);
+                return Response::json(['error' => 'Token de autenticação inválido ou ausente.'], HttpStatus::UNAUTHORIZED);
             }
 
             return $this->runHandler($route['handler'], $request, $params);
         }
 
         if ($this->pathExistsForAnotherMethod($request)) {
-            return Response::json(['error' => 'Metodo nao permitido'], HttpStatus::METHOD_NOT_ALLOWED);
+            return Response::json(['error' => 'Método não permitido'], HttpStatus::METHOD_NOT_ALLOWED);
         }
 
-        return Response::json(['error' => 'Rota nao encontrada'], HttpStatus::NOT_FOUND);
+        return Response::json(['error' => 'Rota não encontrada'], HttpStatus::NOT_FOUND);
     }
 
     private function add(string $method, string $path, callable|array|string $handler): self

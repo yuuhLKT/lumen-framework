@@ -45,7 +45,7 @@ final class AuthService
         $user = $this->users->findByEmail($data['email']);
 
         if ($user === null || !password_verify($data['password'], (string) ($user['password_hash'] ?? ''))) {
-            throw new HttpException('Credenciais invalidas.', HttpStatus::UNAUTHORIZED);
+            throw new HttpException('Credenciais inválidas.', HttpStatus::UNAUTHORIZED);
         }
 
         $token = $this->tokens->createForUser((int) $user['id']);

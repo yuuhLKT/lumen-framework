@@ -30,7 +30,7 @@ final class MigrationRunner
             $migration = require $file;
 
             if (!is_callable($migration)) {
-                throw new RuntimeException("Migration [{$name}] deve retornar uma funcao.");
+                throw new RuntimeException("Migration [{$name}] deve retornar uma função.");
             }
 
             $this->connection->transaction(function () use ($migration, $name): void {
