@@ -164,14 +164,13 @@ Email duplicado:
 
 ## Token fixo opcional
 
-A base ainda aceita tokens fixos no `.env` para scripts internos ou testes muito simples:
+A base ainda aceita um token fixo no `.env` para scripts internos ou testes muito simples:
 
 ```env
-AUTH_TOKEN=dev-token
-AUTH_TOKENS=mobile-token,admin-token
+DEV_BEARER_TOKEN=dev-token
 ```
 
-Esses tokens passam no `->auth()`, mas nao representam um usuario. Portanto, `Request::user()` retorna `null` quando a autenticacao veio de token fixo.
+Esse token passa no `->auth()`, mas não representa um usuário. Portanto, `Request::user()` retorna `null` quando a autenticação veio de token fixo.
 
 Para APIs com usuario autenticado, prefira sempre `/auth/register` ou `/auth/login`.
 

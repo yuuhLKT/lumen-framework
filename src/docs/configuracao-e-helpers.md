@@ -18,8 +18,7 @@ Exemplo:
 ```env
 APP_TIMEZONE=America/Sao_Paulo
 APP_DEBUG=false
-AUTH_TOKEN=dev-token
-AUTH_TOKENS=
+DEV_BEARER_TOKEN=dev-token
 DB_CONNECTION=json
 DB_JSON_PATH=storage/database.json
 DB_SQLITE_PATH=storage/database.sqlite
@@ -89,17 +88,15 @@ Arquivo: `config/auth.php`.
 
 Variaveis:
 
-- `AUTH_TOKEN`: token unico para desenvolvimento ou desafio simples.
-- `AUTH_TOKENS`: lista separada por virgula para aceitar mais de um token.
+- `DEV_BEARER_TOKEN`: token único para desenvolvimento ou desafio simples.
 
 Exemplo:
 
 ```env
-AUTH_TOKEN=dev-token
-AUTH_TOKENS=mobile-token,admin-token
+DEV_BEARER_TOKEN=dev-token
 ```
 
-Todos os tokens nao vazios sao aceitos nas rotas protegidas com `->auth()`.
+O token não vazio é aceito nas rotas protegidas com `->auth()`.
 
 ## Helpers disponiveis
 

@@ -11,8 +11,7 @@ services:
       - .:/app
     environment:
       APP_TIMEZONE: ${APP_TIMEZONE:-America/Sao_Paulo}
-      AUTH_TOKEN: ${AUTH_TOKEN:-dev-token}
-      AUTH_TOKENS: ${AUTH_TOKENS:-}
+      DEV_BEARER_TOKEN: ${DEV_BEARER_TOKEN:-dev-token}
       DB_CONNECTION: ${DB_CONNECTION:-json}
       DB_JSON_PATH: ${DB_JSON_PATH:-storage/database.json}
       DB_SQLITE_PATH: ${DB_SQLITE_PATH:-storage/database.sqlite}
