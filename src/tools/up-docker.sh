@@ -20,12 +20,12 @@ select_choice() {
         return 0
     fi
 
-    printf '\n%s\n' 'Escolha o banco para subir (runner: docker):'
-    printf '%s\n' '  1) JSON local (em container)'
-    printf '%s\n' '  2) SQLite local (em container)'
-    printf '%s\n' '  3) MySQL (container docker)'
-    printf '%s\n' '  4) PostgreSQL (container docker)'
-    printf '\n%s' 'Opcao [1]: '
+    printf '\n%s\n' 'Escolha o banco para subir (runner: docker):' >&2
+    printf '%s\n' '  1) JSON local (em container)' >&2
+    printf '%s\n' '  2) SQLite local (em container)' >&2
+    printf '%s\n' '  3) MySQL (container docker)' >&2
+    printf '%s\n' '  4) PostgreSQL (container docker)' >&2
+    printf '\n%s' 'Opcao [1]: ' >&2
 
     read selected
     selected=${selected:-1}
