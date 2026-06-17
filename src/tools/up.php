@@ -102,7 +102,7 @@ if ($isLocal) {
     echo PHP_EOL;
     echo 'Modo local: iniciando PHP embutido.' . PHP_EOL;
 
-    if (!($choice['local_only'] ?? false)) {
+    if (!$choice['local_only']) {
         $databaseHost = $choice['updates']['DB_CONNECTION'] === 'pgsql' ? $pgHost : $mysqlHost;
         echo "Garanta que o servidor de banco local está rodando em {$databaseHost}." . PHP_EOL;
     }

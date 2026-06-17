@@ -6,6 +6,6 @@ parameters:
         - public
         - routes
         - tools
-    level: 5
+    level: 7
     scanFiles:
         - utils/helpers.php
