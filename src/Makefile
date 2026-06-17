@@ -1,10 +1,11 @@
 COMPOSE ?= docker compose
+COMPOSER ?= composer
 PHP ?= php
 ENV_FILE ?= .env
 
 .DEFAULT_GOAL := help
 
-.PHONY: help env up debug-on debug-off db-json db-sqlite db-mysql db-pgsql db-postgres down down-v logs ps build php-shell validate
+.PHONY: help env up debug-on debug-off db-json db-sqlite db-mysql db-pgsql db-postgres down down-v logs ps build php-shell validate deps serve migrate seed fresh test analyse lint format format-check quality qa
 
 help:
 	@echo "Comandos:"
@@ -18,6 +19,12 @@ help:
 	@echo "  make db-pgsql  Troca .env para PostgreSQL via Docker"
 	@echo "  make down      Para containers"
 	@echo "  make down-v    Para containers e apaga volumes dos bancos"
+	@echo "  make serve     Sobe servidor local sem Docker"
+	@echo "  make migrate   Executa migrations"
+	@echo "  make seed      Executa seeders"
+	@echo "  make fresh     Executa migrate e seed"
+	@echo "  make quality   Roda lint, PHPStan e testes"
+	@echo "  make format    Formata o codigo com PHP CS Fixer"
 
 env:
 	@$(PHP) tools/env.php --init $(ENV_FILE)
@@ -67,3 +74,36 @@ validate:
 	@$(COMPOSE) --profile mysql --profile postgres config >/dev/null
 	@$(PHP) -l tools/env.php
 	@$(PHP) -l tools/up.php
+
+deps:
+	@$(COMPOSER) install
+
+serve:
+	@$(PHP) -S localhost:8000 -t public
+
+migrate:
+	@$(COMPOSER) migrate
+
+seed:
+	@$(COMPOSER) seed
+
+fresh: migrate seed
+
+test:
+	@$(COMPOSER) test
+
+analyse:
+	@$(COMPOSER) analyse
+
+lint:
+	@$(COMPOSER) lint
+
+format:
+	@$(COMPOSER) format
+
+format-check:
+	@$(COMPOSER) format-check
+
+quality: lint format-check analyse test
+
+qa: quality

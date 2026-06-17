@@ -28,6 +28,7 @@
         "test": "phpunit",
         "analyse": "phpstan analyse app routes public bootstrap tools --level=5 --memory-limit=512M",
         "format": "php-cs-fixer fix --allow-risky=yes",
+        "format-check": "php-cs-fixer fix --allow-risky=yes --dry-run --diff",
         "lint": "php tools/lint.php",
         "migrate": "php tools/migrate.php",
         "seed": "php tools/seed.php"
