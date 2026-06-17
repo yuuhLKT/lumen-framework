@@ -14,7 +14,10 @@ final class Response
     ) {
     }
 
-    /** @param mixed $data */
+    /**
+     * @param mixed $data
+     * @param array<string, string> $headers
+     */
     public static function json(mixed $data, int $status = 200, array $headers = []): self
     {
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -25,6 +28,7 @@ final class Response
         ]);
     }
 
+    /** @param array<string, string> $headers */
     public static function html(string $content, int $status = 200, array $headers = []): self
     {
         return new self($content, $status, [
@@ -33,6 +37,7 @@ final class Response
         ]);
     }
 
+    /** @param array<string, string> $headers */
     public static function text(string $content, int $status = 200, array $headers = []): self
     {
         return new self($content, $status, [

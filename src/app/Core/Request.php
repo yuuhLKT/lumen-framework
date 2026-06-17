@@ -10,7 +10,9 @@ final class Request
     private ?array $user = null;
 
     /**
+     * @param array<string, mixed> $query
      * @param array<string, mixed> $body
+     * @param array<string, mixed> $server
      * @param array<string, string> $headers
      */
     public function __construct(
@@ -138,16 +140,31 @@ final class Request
         if (str_contains($contentType, 'application/json')) {
             $json = json_decode($rawBody, true);
 
-            return is_array($json) ? $json : [];
+            return is_array($json) ? self::stringKeys($json) : [];
         }
 
         if (!empty($_POST)) {
-            return $_POST;
+            return self::stringKeys($_POST);
         }
 
         parse_str($rawBody, $data);
 
-        return $data;
+        return self::stringKeys($data);
+    }
+
+    /**
+     * @param array<int|string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private static function stringKeys(array $data): array
+    {
+        $result = [];
+
+        foreach ($data as $key => $value) {
+            $result[(string) $key] = $value;
+        }
+
+        return $result;
     }
 
     private static function normalizePath(string $path): string

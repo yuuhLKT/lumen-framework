@@ -38,13 +38,19 @@ abstract class Controller
         return Response::text('', HttpStatus::NO_CONTENT);
     }
 
-    /** @param array<string, string|array<int, string>> $rules */
+    /**
+     * @param array<string, string|array<int, string>> $rules
+     * @return array<string, mixed>
+     */
     protected function validate(Request $request, array $rules): array
     {
         return Validator::validate($request->input(), $rules);
     }
 
-    /** @return never */
+    /**
+     * @param array<string, mixed> $errors
+     * @return never
+     */
     protected function abort(int $status, string $message, array $errors = []): void
     {
         throw new HttpException($message, $status, $errors);

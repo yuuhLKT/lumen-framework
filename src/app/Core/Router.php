@@ -8,32 +8,39 @@ use App\Support\HttpStatus;
 
 final class Router
 {
-    /** @var array<string, array<int, array{path: string, handler: callable|array|string, auth: bool}>> */
+    /**
+     * @var array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, auth: bool}>>
+     */
     private array $routes = [];
 
     /** @var array{method: string, index: int}|null */
     private ?array $lastRoute = null;
 
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
     public function get(string $path, callable|array|string $handler): self
     {
         return $this->add('GET', $path, $handler);
     }
 
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
     public function post(string $path, callable|array|string $handler): self
     {
         return $this->add('POST', $path, $handler);
     }
 
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
     public function put(string $path, callable|array|string $handler): self
     {
         return $this->add('PUT', $path, $handler);
     }
 
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
     public function patch(string $path, callable|array|string $handler): self
     {
         return $this->add('PATCH', $path, $handler);
     }
 
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
     public function delete(string $path, callable|array|string $handler): self
     {
         return $this->add('DELETE', $path, $handler);
@@ -62,6 +69,9 @@ final class Router
         return Response::json(['error' => 'Rota não encontrada'], HttpStatus::NOT_FOUND);
     }
 
+    /**
+     * @param callable|array{0: class-string, 1: string}|string $handler
+     */
     private function add(string $method, string $path, callable|array|string $handler): self
     {
         $this->routes[$method][] = [
@@ -108,7 +118,10 @@ final class Router
         return array_combine($paramNames, array_map('urldecode', $matches)) ?: [];
     }
 
-    /** @param array<string, string> $params */
+    /**
+     * @param callable|array{0: class-string, 1: string}|string $handler
+     * @param array<string, string> $params
+     */
     private function runHandler(callable|array|string $handler, Request $request, array $params): Response
     {
         if (is_array($handler)) {
@@ -119,6 +132,10 @@ final class Router
         if (is_string($handler) && str_contains($handler, '@')) {
             [$class, $method] = explode('@', $handler, 2);
             $handler = [new $class(), $method];
+        }
+
+        if (!is_callable($handler)) {
+            return Response::json(['error' => 'Handler inválido.'], HttpStatus::INTERNAL_SERVER_ERROR);
         }
 
         $result = call_user_func($handler, $request, $params);
