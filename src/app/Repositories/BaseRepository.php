@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Database\Contracts\DatabaseConnection;
+use App\Database\Contracts\QueryBuilder;
 use App\Database\Contracts\Table;
 use App\Database\Database;
 use InvalidArgumentException;
@@ -20,6 +21,11 @@ abstract class BaseRepository
         if ($this->table === '') {
             throw new InvalidArgumentException('Defina a propriedade $table no repository.');
         }
+    }
+
+    public function query(): QueryBuilder
+    {
+        return $this->getTable()->query();
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -40,19 +46,28 @@ abstract class BaseRepository
         return $this->where($field, $value)[0] ?? null;
     }
 
-    /** @param array<string, mixed> $criteria */
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<string, mixed>|null
+     */
     public function findBy(array $criteria): ?array
     {
         return $this->whereAll($criteria)[0] ?? null;
     }
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     public function insert(array $data): array
     {
         return $this->getTable()->insert($data);
     }
 
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>|null
+     */
     public function update(int|string $id, array $data): ?array
     {
         return $this->getTable()->update($id, $data);
@@ -66,7 +81,7 @@ abstract class BaseRepository
     /** @return array<int, array<string, mixed>> */
     public function where(string $field, mixed $value): array
     {
-        return $this->getTable()->where($field, $value);
+        return $this->query()->where($field, $value)->get();
     }
 
     public function exists(string $field, mixed $value): bool
@@ -74,59 +89,40 @@ abstract class BaseRepository
         return $this->findOne($field, $value) !== null;
     }
 
-    /** @param array<string, mixed> $criteria */
+    /**
+     * @param array<string, mixed> $criteria
+     * @return array<int, array<string, mixed>>
+     */
     public function whereAll(array $criteria): array
     {
-        return array_values(array_filter(
-            $this->findAll(),
-            fn (array $row): bool => $this->matches($row, $criteria),
-        ));
+        $query = $this->query();
+
+        foreach ($criteria as $field => $value) {
+            $query->where($field, $value);
+        }
+
+        return $query->get();
     }
 
     public function count(): int
     {
-        return count($this->findAll());
+        return $this->query()->count();
     }
 
     /** @return array<string, mixed>|null */
     public function first(): ?array
     {
-        return $this->findAll()[0] ?? null;
+        return $this->query()->orderBy('id')->first();
     }
 
     /** @return array{data: array<int, array<string, mixed>>, meta: array{page: int, per_page: int, total: int, last_page: int}} */
     public function paginate(int $page = 1, int $perPage = 15): array
     {
-        $page = max(1, $page);
-        $perPage = max(1, $perPage);
-        $rows = $this->findAll();
-        $total = count($rows);
-
-        return [
-            'data' => array_slice($rows, ($page - 1) * $perPage, $perPage),
-            'meta' => [
-                'page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
-                'last_page' => (int) max(1, ceil($total / $perPage)),
-            ],
-        ];
+        return $this->query()->orderBy('id')->paginate($page, $perPage);
     }
 
     protected function getTable(): Table
     {
         return $this->tableInstance ??= ($this->connection ?? Database::connection())->table($this->table);
-    }
-
-    /** @param array<string, mixed> $criteria */
-    private function matches(array $row, array $criteria): bool
-    {
-        foreach ($criteria as $field => $value) {
-            if (($row[$field] ?? null) !== $value) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

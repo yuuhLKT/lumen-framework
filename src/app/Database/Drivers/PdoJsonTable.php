@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Database\Drivers;
 
+use App\Database\Contracts\QueryBuilder;
 use App\Database\Contracts\Table;
+use App\Database\QueryBuilders\PdoJsonQueryBuilder;
 use InvalidArgumentException;
 use PDO;
 
@@ -18,11 +20,24 @@ abstract class PdoJsonTable implements Table
         $this->createTableIfMissing();
     }
 
+    public function query(): QueryBuilder
+    {
+        return $this->createQueryBuilder();
+    }
+
+    abstract protected function createQueryBuilder(): PdoJsonQueryBuilder;
+
     public function all(): array
     {
         $statement = $this->pdo->query("SELECT id, data FROM {$this->table} ORDER BY id ASC");
 
-        return array_map(fn (array $row): array => $this->hydrate($row), $statement->fetchAll());
+        if ($statement === false) {
+            return [];
+        }
+
+        $rows = $statement->fetchAll();
+
+        return array_map(fn (array $row): array => $this->hydrate($row), $rows);
     }
 
     public function find(int|string $id): ?array
@@ -34,6 +49,10 @@ abstract class PdoJsonTable implements Table
         return is_array($row) ? $this->hydrate($row) : null;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     public function insert(array $data): array
     {
         unset($data['id']);
@@ -43,6 +62,10 @@ abstract class PdoJsonTable implements Table
         return ['id' => $id, ...$data];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>|null
+     */
     public function update(int|string $id, array $data): ?array
     {
         $current = $this->find($id);
@@ -84,6 +107,10 @@ abstract class PdoJsonTable implements Table
     /** @param array<string, mixed> $data */
     abstract protected function insertAndReturnId(array $data): int;
 
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
     protected function hydrate(array $row): array
     {
         $data = json_decode((string) $row['data'], true);

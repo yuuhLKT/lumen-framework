@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Database\Drivers\Json;
 
+use App\Database\Contracts\QueryBuilder;
 use App\Database\Contracts\Table;
+use App\Database\QueryBuilders\ArrayQueryBuilder;
 
 final class JsonTable implements Table
 {
@@ -12,6 +14,11 @@ final class JsonTable implements Table
         private readonly JsonConnection $connection,
         private readonly string $name,
     ) {
+    }
+
+    public function query(): QueryBuilder
+    {
+        return new ArrayQueryBuilder($this->connection, $this->name);
     }
 
     public function all(): array
@@ -32,6 +39,10 @@ final class JsonTable implements Table
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
     public function insert(array $data): array
     {
         $database = $this->connection->read();
@@ -48,6 +59,10 @@ final class JsonTable implements Table
         return $row;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>|null
+     */
     public function update(int|string $id, array $data): ?array
     {
         $database = $this->connection->read();
