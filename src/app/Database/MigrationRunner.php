@@ -27,14 +27,10 @@ final class MigrationRunner
                 continue;
             }
 
-            $migration = require $file;
-
-            if (!is_callable($migration)) {
-                throw new RuntimeException("Migration [{$name}] deve retornar uma função.");
-            }
+            $migration = $this->loadMigration($file, $name);
 
             $this->connection->transaction(function () use ($migration, $name): void {
-                $migration($this->connection);
+                $migration['up']($this->connection);
                 $this->connection->table('migrations')->insert([
                     'name' => $name,
                     'executed_at' => date(DATE_ATOM),
@@ -45,6 +41,69 @@ final class MigrationRunner
         }
 
         return $ran;
+    }
+
+    /**
+     * Reverte as ultimas migrations executadas.
+     *
+     * @return array<int, string>
+     */
+    public function rollback(string $path, int $steps = 1): array
+    {
+        $executed = $this->executedMigrations();
+
+        if ($executed === []) {
+            return [];
+        }
+
+        $toRevert = array_slice(array_reverse($executed), 0, $steps);
+        $reverted = [];
+
+        foreach ($toRevert as $name) {
+            $file = $path . DIRECTORY_SEPARATOR . $name;
+
+            if (!is_file($file)) {
+                throw new RuntimeException("Arquivo da migration [{$name}] nao encontrado.");
+            }
+
+            $migration = $this->loadMigration($file, $name);
+
+            if ($migration['down'] === null) {
+                continue;
+            }
+
+            $this->connection->transaction(function () use ($migration, $name): void {
+                $migration['down']($this->connection);
+                $this->connection->table('migrations')->delete(
+                    (int) ($this->connection->table('migrations')->where('name', $name)[0]['id'] ?? 0),
+                );
+            });
+
+            $reverted[] = $name;
+        }
+
+        return $reverted;
+    }
+
+    /**
+     * @return array{up: callable, down: callable|null}
+     */
+    private function loadMigration(string $file, string $name): array
+    {
+        $migration = require $file;
+
+        if (is_callable($migration)) {
+            return ['up' => $migration, 'down' => null];
+        }
+
+        if (is_array($migration) && is_callable($migration['up'] ?? null)) {
+            return [
+                'up' => $migration['up'],
+                'down' => is_callable($migration['down'] ?? null) ? $migration['down'] : null,
+            ];
+        }
+
+        throw new RuntimeException("Migration [{$name}] deve retornar uma funcao ou um array com 'up'.");
     }
 
     /** @return array<int, string> */
