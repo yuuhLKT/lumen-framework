@@ -27,7 +27,12 @@ select_choice() {
     printf '%s\n' '  4) PostgreSQL (container docker)'
     printf '\n%s' 'Opcao [1]: '
 
-    read selected
+    if [ -t 0 ]; then
+        read selected
+    else
+        read selected < /dev/tty
+    fi
+
     selected=${selected:-1}
 
     case "$selected" in
