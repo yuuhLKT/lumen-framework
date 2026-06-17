@@ -20,12 +20,6 @@ select_choice() {
         return 0
     fi
 
-    if [ ! -t 0 ]; then
-        printf '%s\n' 'STDIN nao e um terminal. Usando banco padrao: JSON local (em container).' >&2
-        printf '%s' 1
-        return 0
-    fi
-
     printf '\n%s\n' 'Escolha o banco para subir (runner: docker):'
     printf '%s\n' '  1) JSON local (em container)'
     printf '%s\n' '  2) SQLite local (em container)'

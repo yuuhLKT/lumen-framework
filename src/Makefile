@@ -37,9 +37,11 @@ endif
 
 ifeq ($(RUNNER),docker)
 ENV_RUN        = $(ENV_SCRIPT)
-UP_RUN         = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)"
-UP_MYSQL_RUN   = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=mysql
-UP_PG_RUN      = $(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=pgsql
+# Forca um pseudo-TTY quando o make e executado sem terminal real (IDE/WSL).
+# 'script -q -c' e' portavel em Linux/WSL; se nao existir, o script cai no JSON padrao.
+UP_RUN         = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)"' /dev/null
+UP_MYSQL_RUN   = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=mysql' /dev/null
+UP_PG_RUN      = script -q -c '$(UP_DOCKER_SCRIPT) $(ENV_FILE) "$(COMPOSE)" --profile=pgsql' /dev/null
 DOWN_RUN       = $(COMPOSE) down
 DOWN_V_RUN     = $(COMPOSE) down -v
 BUILD_RUN      = $(COMPOSE) build php
