@@ -124,6 +124,12 @@ help:
 	@echo "  make fresh          migrate + seed"
 	@echo "  make serve          php -S localhost:8000 -t public"
 	@echo
+	@echo "CLI proprio (alternativa ao make):"
+	@echo "  php base.php list              lista comandos"
+	@echo "  php base.php migrate           roda migrations"
+	@echo "  php base.php seed              roda seeders"
+	@echo "  php base.php serve             sobe servidor local"
+	@echo
 	@echo "Qualidade:"
 	@echo "  make test           PHPUnit"
 	@echo "  make analyse        PHPStan"

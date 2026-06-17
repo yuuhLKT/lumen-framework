@@ -6,11 +6,13 @@ Esta pasta separa a documentacao por assunto. Use o README da raiz para rodar o 
 
 - [Arquitetura e fluxo da requisicao](arquitetura.md)
 - [Rotas e controllers](rotas-e-controllers.md)
+- [Middleware](middleware.md)
 - [Mini Auth](autenticacao.md)
 - [Request e response](request-e-response.md)
 - [Validacao](validacao.md)
 - [Banco de dados e repositories](banco-e-repositories.md)
 - [Migrations e seeders](migrations-e-seeders.md)
+- [CLI](cli.md)
 - [HTTP client](http-client.md)
 - [DTOs](dtos.md)
 - [Services e organizacao de camadas](services-e-camadas.md)

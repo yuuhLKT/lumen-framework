@@ -2,31 +2,30 @@
 
 Estrutura simples em PHP puro para copiar em desafios e focar na logica do problema, sem depender de framework. Composer e opcional, mas recomendado para testes e ferramentas de qualidade.
 
-A base ja vem com roteador, request/response, controller base, Mini Auth com tokens, validacao, tratamento de erros, DTOs, repositories, services por convencao, client HTTP, migrations/seeders simples, transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
+A base ja vem com roteador, request/response, controller base, Mini Auth com tokens, validacao, tratamento de erros, DTOs, repositories, query builder, relacionamentos, middleware, CLI proprio, services por convencao, client HTTP, migrations/seeders simples (com rollback), transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
 
-## Rodar
+## Criar um novo projeto
 
-Para criar um novo projeto a partir da base, rode na pasta `base`:
+Na pasta `base`, rode:
 
 ```bash
 ./base.sh
 ```
 
-Ele pergunta o nome e copia `src/` para uma nova pasta no mesmo nivel da `base`, por exemplo `../example`.
+Ele pergunta o nome e copia `src/` para uma nova pasta no mesmo nivel, por exemplo `../meu-projeto`.
 
-Na pasta `src`:
+## Rodar local
+
+Dentro de `src`:
+
+```bash
+php base.php serve
+```
+
+Ou diretamente com o PHP:
 
 ```bash
 php -S localhost:8000 -t public
-```
-
-Se quiser usar Composer:
-
-```bash
-composer install
-composer test
-composer analyse
-composer lint
 ```
 
 Acesse:
@@ -35,19 +34,65 @@ Acesse:
 http://localhost:8000/health
 ```
 
-Com Docker:
+Resposta esperada:
 
-```bash
-docker compose up --build php
+```json
+{"status":"ok"}
 ```
 
-Com Makefile:
+## CLI
+
+A base possui um CLI proprio em `base.php` (com wrappers `base` para Unix e `base.bat` para Windows).
+
+```bash
+php base.php list
+```
+
+Comandos principais:
+
+```bash
+php base.php migrate              # executa migrations pendentes
+php base.php migrate:rollback     # reverte a ultima migration
+php base.php seed                 # executa seeders
+php base.php fresh                # migrate + seed
+
+php base.php make:controller NomeController
+php base.php make:repository NomeRepository
+php base.php make:middleware NomeMiddleware
+php base.php make:migration create_nome_da_tabela
+
+php base.php route:list
+php base.php serve
+
+php base.php test
+php base.php analyse
+php base.php lint
+php base.php format
+```
+
+Veja mais em [docs/cli.md](docs/cli.md).
+
+## Composer
+
+Se quiser usar Composer:
+
+```bash
+composer install
+composer test
+composer analyse
+composer lint
+composer format-check
+```
+
+## Docker e Makefile
+
+Com Docker:
 
 ```bash
 make up
 ```
 
-O comando detecta se o Docker esta disponivel. Com Docker, abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, usa PHP local.
+O Makefile detecta se o Docker esta disponivel. Com Docker, abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, sobe o PHP local.
 
 Para forcar PHP local:
 
@@ -55,7 +100,7 @@ Para forcar PHP local:
 make local
 ```
 
-Se quiser PHP local com banco em Docker, suba so o banco antes:
+Se quiser PHP local com banco em Docker:
 
 ```bash
 make db-up-mysql
@@ -65,19 +110,7 @@ make db-up-pg
 make local
 ```
 
-Tambem existem aliases `local-*`, como `make local-up`, `make local-build`, `make local-test` e `make local-quality`.
-
-Teste rapido:
-
-```bash
-curl http://localhost:8000/health
-```
-
-Resposta esperada:
-
-```json
-{"status":"ok"}
-```
+Tambem existem aliases `local-*`, como `make local-test`, `make local-analyse` e `make local-quality`.
 
 ## Requisitos
 
@@ -98,19 +131,21 @@ routes/web.php                      Registro das rotas
 config/config.php                   Configuracoes gerais
 config/database.php                 Configuracao do banco
 config/auth.php                     Tokens fixos opcionais
-app/Core/Router.php                 Roteador GET/POST/PUT/PATCH/DELETE
+app/Core/Router.php                 Roteador com middleware
 app/Core/Request.php                Query string, body e servidor
 app/Core/Response.php               JSON, HTML, texto e redirect
 app/Core/Controller.php             Atalhos para controllers
 app/Core/Auth.php                   Integracao do Mini Auth com rotas protegidas
 app/Core/ErrorHandler.php           Tratamento central de excecoes
-app/Database/                       Drivers JSON, SQLite, MySQL e PostgreSQL
+app/Http/Middleware/                Interface, pipeline e middlewares
+app/Database/                       Drivers JSON, SQLite, MySQL e PostgreSQL + query builder + relacoes
 app/Http/                           Client HTTP nativo e fake para testes
 app/DTO/BaseDTO.php                 DTO base com fromArray/toArray
 app/Exceptions/                     Excecoes HTTP e validacao
 app/Repositories/BaseRepository.php Repository base por tabela
 app/Controllers/                    Controllers HTTP
 app/Services/                       Services de regra de negocio
+app/Console/                        CLI proprio
 app/Clients/                        Clients para servicos externos
 app/Support/HttpStatus.php          Constantes de status HTTP
 app/Validation/Validator.php        Validador simples de input
@@ -120,13 +155,10 @@ storage/database.json               Banco JSON inicial
 utils/helpers.php                   Helpers globais
 docker-compose.yml                  PHP e bancos via Docker
 Makefile                            Atalhos para Docker, banco e ngrok local
-tools/env.php                       Atualizador simples do .env (PHP local)
-tools/env.sh                        Atualizador simples do .env (Linux/WSL)
-tools/env.ps1                       Atualizador simples do .env (Windows)
-tools/up-docker.sh                  Sobe Docker via menu interativo (Linux/WSL)
-tools/up-docker.ps1                 Sobe Docker via menu interativo (Windows)
-tools/migrate.php                   Executa migrations
-tools/seed.php                      Executa seeders
+base.php                            CLI proprio
+base                                Wrapper do CLI para Unix
+base.bat                            Wrapper do CLI para Windows
+tools/                              Scripts auxiliares (env, migrate, seed, lint)
 tests/                              Testes PHPUnit
 docs/                               Documentacao detalhada
 ```
@@ -136,11 +168,13 @@ docs/                               Documentacao detalhada
 - [Indice da documentacao](docs/README.md)
 - [Arquitetura e fluxo da requisicao](docs/arquitetura.md)
 - [Rotas e controllers](docs/rotas-e-controllers.md)
+- [Middleware](docs/middleware.md)
 - [Mini Auth](docs/autenticacao.md)
 - [Request e response](docs/request-e-response.md)
 - [Validacao](docs/validacao.md)
-- [Banco de dados e repositories](docs/banco-e-repositories.md)
+- [Banco de dados, repositories e relacoes](docs/banco-e-repositories.md)
 - [Migrations e seeders](docs/migrations-e-seeders.md)
+- [CLI](docs/cli.md)
 - [HTTP client](docs/http-client.md)
 - [DTOs](docs/dtos.md)
 - [Services e organizacao de camadas](docs/services-e-camadas.md)
@@ -199,7 +233,40 @@ final class ProductController extends Controller
 }
 ```
 
-## Banco padrao
+## Middleware
+
+Crie um middleware implementando `App\Http\Middleware\Middleware`:
+
+```php
+final class EnsureAdmin implements Middleware
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (($request->user()['role'] ?? null) !== 'admin') {
+            return Response::json(['error' => 'Acesso negado.'], 403);
+        }
+
+        return $next($request);
+    }
+}
+```
+
+Use na rota:
+
+```php
+$router->get('/admin', [AdminController::class, 'index'])
+    ->middleware([EnsureAdmin::class]);
+```
+
+A auth nativa continua funcionando via `->auth()`:
+
+```php
+$router->get('/me', [AuthController::class, 'me'])->auth();
+```
+
+Veja mais em [docs/middleware.md](docs/middleware.md).
+
+## Banco de dados e query builder
 
 Por padrao usa JSON em `storage/database.json`:
 
@@ -208,38 +275,62 @@ $created = db()->table('users')->insert([
     'name' => 'Yuri',
     'email' => 'yuri@example.com',
 ]);
+
+$user = db()->table('users')->find($created['id']);
+
+$admins = db()->table('users')->query()
+    ->where('role', 'admin')
+    ->orderBy('name')
+    ->get();
 ```
 
-Para SQLite, use `.env`:
+Para trocar de banco, use `.env`:
 
 ```env
 DB_CONNECTION=sqlite
 DB_SQLITE_PATH=storage/database.sqlite
 ```
 
-Para MySQL:
+Outros exemplos:
 
-```env
-DB_CONNECTION=mysql
-DB_MYSQL_HOST=127.0.0.1
-DB_MYSQL_PORT=3306
-DB_MYSQL_DATABASE=base
-DB_MYSQL_USERNAME=root
-DB_MYSQL_PASSWORD=
+```php
+$recent = db()->table('users')->query()
+    ->select(['name', 'email'])
+    ->where('active', true)
+    ->where('age', 18, '>=')
+    ->whereLike('name', 'Yuri%')
+    ->orderBy('created_at', 'desc')
+    ->paginate(1, 15);
 ```
 
-Para PostgreSQL:
+Veja mais em [docs/banco-e-repositories.md](docs/banco-e-repositories.md).
 
-```env
-DB_CONNECTION=pgsql
-DB_PGSQL_HOST=127.0.0.1
-DB_PGSQL_PORT=5432
-DB_PGSQL_DATABASE=base
-DB_PGSQL_USERNAME=postgres
-DB_PGSQL_PASSWORD=
+## Relacionamentos
+
+Declare relacionamentos no repository:
+
+```php
+final class UserRepository extends BaseRepository
+{
+    protected string $table = 'users';
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(PostRepository::class, 'user_id');
+    }
+}
 ```
 
-Veja `.env.example` para as variaveis disponiveis.
+Uso:
+
+```php
+$user = $users->find(1);
+$posts = $users->posts()->for($user)->get();
+
+$users->posts()->for($user)->create(['title' => 'Novo post']);
+```
+
+Tambem suporta `belongsTo` e `belongsToMany`. Veja mais em [docs/banco-e-repositories.md](docs/banco-e-repositories.md).
 
 ## Mini Auth
 
@@ -265,14 +356,6 @@ Use o `access_token` retornado nas rotas protegidas:
 curl http://localhost:8000/auth/me -H "Authorization: Bearer token-gerado"
 ```
 
-## Proteger rotas
-
-Proteja a rota com `->auth()`:
-
-```php
-$router->get('/me', fn ($request) => ['user' => $request->user()])->auth();
-```
-
 ## Quando usar cada camada
 
 - `routes/web.php`: entrada das URLs e escolha do handler.
@@ -287,7 +370,7 @@ $router->get('/me', fn ($request) => ['user' => $request->user()])->auth();
 ## Observacoes
 
 - O autoload carrega classes dentro do namespace `App\` a partir da pasta `app/`.
-- O projeto nao cria migrations. Nos drivers SQL, cada tabela e criada automaticamente com colunas `id` e `data`.
+- O projeto nao exige migrations. Nos drivers SQL, cada tabela e criada automaticamente com colunas `id` e `data`.
 - O `.env` tem prioridade sobre variaveis de ambiente do sistema.
 - Erros internos so mostram `trace` quando `APP_DEBUG=true`.
 - O driver JSON e bom para estudos e desafios pequenos; SQLite, MySQL e PostgreSQL aproximam mais de persistencia real.
