@@ -288,6 +288,88 @@ $users->first();
 $users->paginate(1, 10);
 ```
 
+## Relacionamentos
+
+Repositories podem declarar relacionamentos simples.
+
+### HasMany
+
+```php
+final class UserRepository extends BaseRepository
+{
+    protected string $table = 'users';
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(PostRepository::class, 'user_id');
+    }
+}
+```
+
+Uso:
+
+```php
+$user = $users->find(1);
+$posts = $users->posts()->for($user)->get();
+
+// ou
+$posts = $users->posts(1)->get();
+
+// criar filho ja vinculado
+$users->posts()->for($user)->create(['title' => 'Novo post']);
+```
+
+### BelongsTo
+
+```php
+final class PostRepository extends BaseRepository
+{
+    protected string $table = 'posts';
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(UserRepository::class, 'user_id');
+    }
+}
+```
+
+Uso:
+
+```php
+$post = $posts->find(1);
+$author = $posts->user()->for($post)->first();
+```
+
+### BelongsToMany
+
+```php
+final class UserRepository extends BaseRepository
+{
+    protected string $table = 'users';
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            RoleRepository::class,
+            RoleUserRepository::class,
+            'user_id',
+            'role_id',
+        );
+    }
+}
+```
+
+Uso:
+
+```php
+$user = $users->find(1);
+$roles = $users->roles()->for($user)->get();
+
+$users->roles()->for($user)->attach($roleId);
+$users->roles()->for($user)->detach($roleId);
+$users->roles()->for($user)->sync([$roleA, $roleB]);
+```
+
 ## Repository
 
 Use repository quando quiser reutilizar acesso a uma tabela.

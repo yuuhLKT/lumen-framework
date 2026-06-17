@@ -8,6 +8,9 @@ use App\Database\Contracts\DatabaseConnection;
 use App\Database\Contracts\QueryBuilder;
 use App\Database\Contracts\Table;
 use App\Database\Database;
+use App\Database\Relations\BelongsTo;
+use App\Database\Relations\BelongsToMany;
+use App\Database\Relations\HasMany;
 use InvalidArgumentException;
 
 abstract class BaseRepository
@@ -121,8 +124,50 @@ abstract class BaseRepository
         return $this->query()->orderBy('id')->paginate($page, $perPage);
     }
 
+    /**
+     * @param class-string<BaseRepository> $relatedClass
+     */
+    protected function hasMany(string $relatedClass, string $foreignKey): HasMany
+    {
+        return new HasMany($this->resolveRepository($relatedClass), $foreignKey);
+    }
+
+    /**
+     * @param class-string<BaseRepository> $relatedClass
+     */
+    protected function belongsTo(string $relatedClass, string $foreignKey): BelongsTo
+    {
+        return new BelongsTo($this->resolveRepository($relatedClass), $foreignKey);
+    }
+
+    /**
+     * @param class-string<BaseRepository> $relatedClass
+     * @param class-string<BaseRepository> $pivotClass
+     */
+    protected function belongsToMany(
+        string $relatedClass,
+        string $pivotClass,
+        string $foreignKey,
+        string $relatedKey,
+    ): BelongsToMany {
+        return new BelongsToMany(
+            $this->resolveRepository($relatedClass),
+            $this->resolveRepository($pivotClass),
+            $foreignKey,
+            $relatedKey,
+        );
+    }
+
     protected function getTable(): Table
     {
         return $this->tableInstance ??= ($this->connection ?? Database::connection())->table($this->table);
+    }
+
+    /**
+     * @param class-string<BaseRepository> $class
+     */
+    private function resolveRepository(string $class): BaseRepository
+    {
+        return new $class($this->connection);
     }
 }
