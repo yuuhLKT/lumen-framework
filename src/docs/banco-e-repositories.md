@@ -186,6 +186,108 @@ Caracteristicas:
 - `where()` carrega todos os registros e filtra em PHP.
 - O nome da tabela precisa seguir `/^[a-zA-Z_][a-zA-Z0-9_]*$/`.
 
+## Query Builder
+
+Todas as tabelas expoem um query builder fluente via `query()`.
+
+```php
+$users = db()->table('users');
+
+$admins = $users->query()
+    ->where('role', 'admin')
+    ->orderBy('name')
+    ->limit(10)
+    ->get();
+
+$user = $users->query()
+    ->where('email', 'yuri@example.com')
+    ->first();
+
+$names = $users->query()
+    ->select(['name', 'email'])
+    ->where('active', true)
+    ->get();
+
+$paginated = $users->query()
+    ->where('active', true)
+    ->orderBy('created_at', 'desc')
+    ->paginate(page: 1, perPage: 15);
+```
+
+Metodos disponiveis:
+
+- `select($columns)` — colunas especificas (`['name', 'email']` ou `'name'`).
+- `where($field, $value, $operator = '=')` — filtra com AND.
+- `orWhere($field, $value, $operator = '=')` — filtra com OR.
+- `whereNot($field, $value)` — atalho para `!=`.
+- `orWhereNot($field, $value)` — OR com `!=`.
+- `whereIn($field, $values)` — lista de valores.
+- `whereNotIn($field, $values)` — fora da lista.
+- `whereLike($field, $pattern)` — use `%` como curinga.
+- `orderBy($field, $direction = 'asc')` — ordenacao.
+- `groupBy($columns)` — agrupamento.
+- `having($field, $value, $operator = '=')` — filtro apos agrupamento.
+- `limit($limit)` e `offset($offset)` — paginacao manual.
+- `join($table, $leftColumn, $rightColumn, $type = 'inner')` — une tabelas.
+- `leftJoin($table, $leftColumn, $rightColumn)`.
+- `rightJoin($table, $leftColumn, $rightColumn)`.
+- `get()` — executa e retorna todos os registros.
+- `first()` — primeiro registro.
+- `count()` — quantidade de registros que atendem aos filtros.
+- `paginate($page = 1, $perPage = 15)` — retorna `data` e `meta`.
+
+Exemplos combinados:
+
+```php
+$recent = $users->query()
+    ->select(['name', 'email'])
+    ->where('active', true)
+    ->where('age', 18, '>=')
+    ->orWhere('role', 'admin')
+    ->whereIn('status', ['pending', 'approved'])
+    ->whereLike('name', 'Yuri%')
+    ->orderBy('created_at', 'desc')
+    ->limit(20)
+    ->get();
+
+$totalAdmins = $users->query()->where('role', 'admin')->count();
+```
+
+Joins:
+
+```php
+$posts = db()->table('posts');
+
+$result = $users->query()
+    ->join('posts', 'id', 'user_id')
+    ->where('users.name', 'Yuri')
+    ->get();
+```
+
+No driver JSON os dados da tabela unida ficam prefixados (`posts_id`, `posts_title`).
+Nos drivers SQL o join e executado nativamente e os campos da tabela principal sao retornados.
+
+Tambem e possivel usar diretamente pelo repository:
+
+```php
+$users = new UserRepository();
+
+$recent = $users->query()
+    ->where('active', true)
+    ->orderBy('name')
+    ->paginate(1, 10);
+```
+
+Os metodos de conveniencia do repository tambem usam o query builder:
+
+```php
+$users->where('role', 'admin');
+$users->whereAll(['role' => 'admin', 'active' => true]);
+$users->count();
+$users->first();
+$users->paginate(1, 10);
+```
+
 ## Repository
 
 Use repository quando quiser reutilizar acesso a uma tabela.
