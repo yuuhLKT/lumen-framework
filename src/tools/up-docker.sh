@@ -6,32 +6,35 @@ env_file=${1:-.env}
 compose=${2:-docker compose}
 profile_flag=${3:-}
 
-mysql_host=mysql
-pg_host=postgres
-
 select_choice() {
     if [ "$profile_flag" = '--profile=mysql' ]; then
-        printf '%s' 3
+        printf '%s' d3
         return 0
     fi
 
     if [ "$profile_flag" = '--profile=pgsql' ] || [ "$profile_flag" = '--profile=postgres' ]; then
-        printf '%s' 4
+        printf '%s' d4
         return 0
     fi
 
-    printf '\n%s\n' 'Escolha o banco para subir (runner: docker):' >&2
-    printf '%s\n' '  1) JSON local (em container)' >&2
-    printf '%s\n' '  2) SQLite local (em container)' >&2
-    printf '%s\n' '  3) MySQL (container docker)' >&2
-    printf '%s\n' '  4) PostgreSQL (container docker)' >&2
-    printf '\n%s' 'Opcao [1]: ' >&2
+    printf '\n%s\n' 'Escolha o ambiente/banco para subir:' >&2
+    printf '%s\n' 'Docker:' >&2
+    printf '%s\n' '  d1) JSON local (em container)' >&2
+    printf '%s\n' '  d2) SQLite local (em container)' >&2
+    printf '%s\n' '  d3) MySQL (container docker)' >&2
+    printf '%s\n' '  d4) PostgreSQL (container docker)' >&2
+    printf '%s\n' 'PHP local (sem Docker):' >&2
+    printf '%s\n' '  l1) JSON local (arquivo)' >&2
+    printf '%s\n' '  l2) SQLite local (arquivo)' >&2
+    printf '%s\n' '  l3) MySQL (servidor na maquina)' >&2
+    printf '%s\n' '  l4) PostgreSQL (servidor na maquina)' >&2
+    printf '\n%s' 'Opcao [d1]: ' >&2
 
     read selected
-    selected=${selected:-1}
+    selected=${selected:-d1}
 
     case "$selected" in
-        1|2|3|4)
+        d1|d2|d3|d4|l1|l2|l3|l4)
             printf '%s' "$selected"
             ;;
         *)
@@ -42,31 +45,53 @@ select_choice() {
 }
 
 choice=$(select_choice)
+mode=${choice%%[1234]}
+number=${choice##*[dl]}
 profile=''
 services='php'
 
 sh tools/env.sh --init "$env_file" .env.docker.example >/dev/null
 
 case "$choice" in
-    1)
+    d1)
         label='JSON local (em container)'
         sh tools/env.sh "$env_file" DB_CONNECTION json DB_JSON_PATH storage/database.json >/dev/null
         ;;
-    2)
+    d2)
         label='SQLite local (em container)'
         sh tools/env.sh "$env_file" DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite >/dev/null
         ;;
-    3)
+    d3)
         label='MySQL (container docker)'
         profile='--profile mysql'
         services='php mysql'
-        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST "$mysql_host" DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST mysql DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
         ;;
-    4)
+    d4)
         label='PostgreSQL (container docker)'
         profile='--profile postgres'
         services='php postgres'
-        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST "$pg_host" DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST postgres DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
+        ;;
+    l1)
+        label='JSON local (arquivo)'
+        sh tools/env.sh --init "$env_file" .env.example >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION json DB_JSON_PATH storage/database.json >/dev/null
+        ;;
+    l2)
+        label='SQLite local (arquivo)'
+        sh tools/env.sh --init "$env_file" .env.example >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite >/dev/null
+        ;;
+    l3)
+        label='MySQL (servidor na maquina)'
+        sh tools/env.sh --init "$env_file" .env.example >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
+        ;;
+    l4)
+        label='PostgreSQL (servidor na maquina)'
+        sh tools/env.sh --init "$env_file" .env.example >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
         ;;
 esac
 
@@ -74,6 +99,14 @@ php_port=$(awk -F= '/^[[:space:]]*PHP_PORT[[:space:]]*=/ { gsub(/"/, "", $2); pr
 
 printf '\nBanco selecionado: %s\n' "$label"
 printf 'Arquivo %s atualizado.\n' "$env_file"
+
+if [ "$mode" = 'l' ]; then
+    printf '\nModo local: iniciando PHP embutido.\n'
+    printf 'App local em: http://localhost:%s\n\n' "$php_port"
+    php -S "0.0.0.0:${php_port}" -t public
+    exit $?
+fi
+
 printf 'Ngrok local vai apontar para http://localhost:%s\n\n' "$php_port"
 
 ngrok_pid=''
