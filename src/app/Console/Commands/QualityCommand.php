@@ -15,11 +15,11 @@ final class QualityCommand implements Command
     private static array $types = [
         'test' => [
             'name' => 'test',
-            'command' => 'vendor/bin/phpunit --colors=never',
+            'command' => PHP_BINARY . ' vendor/bin/phpunit --colors=never',
         ],
         'analyse' => [
             'name' => 'analyse',
-            'command' => 'vendor/bin/phpstan analyse app routes public bootstrap config tools --level=7 --memory-limit=512M --no-progress',
+            'command' => PHP_BINARY . ' vendor/bin/phpstan analyse app routes public bootstrap config tools --level=7 --memory-limit=512M --no-progress',
         ],
         'lint' => [
             'name' => 'lint',
@@ -27,11 +27,15 @@ final class QualityCommand implements Command
         ],
         'format' => [
             'name' => 'format',
-            'command' => 'vendor/bin/php-cs-fixer fix --allow-risky=yes',
+            'command' => PHP_BINARY . ' vendor/bin/php-cs-fixer fix --allow-risky=yes',
         ],
         'format-check' => [
             'name' => 'format-check',
-            'command' => 'vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff',
+            'command' => PHP_BINARY . ' vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff',
+        ],
+        'qa' => [
+            'name' => 'qa',
+            'command' => '',
         ],
     ];
 
@@ -57,6 +61,7 @@ final class QualityCommand implements Command
             'lint' => 'Executa o lint proprio.',
             'format' => 'Formata o codigo com PHP CS Fixer.',
             'format-check' => 'Verifica formatacao com PHP CS Fixer (dry-run).',
+            'qa' => 'Executa lint, format-check, analyse e test.',
             default => 'Comando de qualidade.',
         };
     }
@@ -66,6 +71,19 @@ final class QualityCommand implements Command
      */
     public function run(array $args): int
     {
+        if ($this->type === 'qa') {
+            foreach (['lint', 'format-check', 'analyse', 'test'] as $type) {
+                echo "\n> {$type}\n";
+                $exitCode = (new self($type))->run([]);
+
+                if ($exitCode !== 0) {
+                    return $exitCode;
+                }
+            }
+
+            return 0;
+        }
+
         $command = self::$types[$this->type]['command'];
 
         passthru($command, $exitCode);

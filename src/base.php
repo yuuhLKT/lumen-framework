@@ -36,6 +36,7 @@ $app
     ->register(new QualityCommand('analyse'))
     ->register(new QualityCommand('lint'))
     ->register(new QualityCommand('format'))
-    ->register(new QualityCommand('format-check'));
+    ->register(new QualityCommand('format-check'))
+    ->register(new QualityCommand('qa'));
 
 exit($app->run($argv));

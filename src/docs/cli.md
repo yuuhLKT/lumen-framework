@@ -60,6 +60,7 @@ php base.php analyse
 php base.php lint
 php base.php format
 php base.php format-check
+php base.php qa             # lint + format-check + analyse + test
 ```
 
 ### Utilidades
