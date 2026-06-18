@@ -5,6 +5,7 @@ Esta pasta separa a documentacao por assunto. Use o README da raiz para rodar o 
 ## Indice
 
 - [Arquitetura e fluxo da requisicao](arquitetura.md)
+- [Gerador de projetos](gerador.md)
 - [Rotas e controllers](rotas-e-controllers.md)
 - [Middleware](middleware.md)
 - [Mini Auth](autenticacao.md)
@@ -45,15 +46,16 @@ A base simula o esqueleto minimo de um framework pequeno:
 Leia nesta ordem se estiver conhecendo o projeto:
 
 1. `arquitetura.md`
-2. `rotas-e-controllers.md`
-3. `autenticacao.md`
-4. `request-e-response.md`
-5. `validacao.md`
-6. `banco-e-repositories.md`
-7. `migrations-e-seeders.md`
-8. `services-e-camadas.md`
-9. `http-client.md`
-10. `testes-e-qualidade.md`
-11. `docker.md`
-12. `limitacoes.md`
-13. `guia-crud.md`
+2. `gerador.md`
+3. `rotas-e-controllers.md`
+4. `autenticacao.md`
+5. `request-e-response.md`
+6. `validacao.md`
+7. `banco-e-repositories.md`
+8. `migrations-e-seeders.md`
+9. `services-e-camadas.md`
+10. `http-client.md`
+11. `testes-e-qualidade.md`
+12. `docker.md`
+13. `limitacoes.md`
+14. `guia-crud.md`

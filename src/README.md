@@ -12,7 +12,11 @@ Na pasta `base`, rode:
 ./base.sh
 ```
 
-Ele pergunta o nome e copia `src/` para uma nova pasta no mesmo nivel, por exemplo `../meu-projeto`.
+Ele pergunta o nome, se o projeto deve incluir Mini Auth, e copia `src/` para uma nova pasta no mesmo nivel, por exemplo `../meu-projeto`.
+
+Projetos gerados nao recebem `AGENTS.md` nem a pasta `tests/`. Os comandos de testes e qualidade continuam disponiveis para voce adicionar seus proprios testes quando fizer sentido.
+
+Veja mais em [docs/gerador.md](docs/gerador.md).
 
 ## Rodar local
 
@@ -189,6 +193,7 @@ docs/                               Documentacao detalhada
 ## Documentacao
 
 - [Indice da documentacao](docs/README.md)
+- [Gerador de projetos](docs/gerador.md)
 - [Arquitetura e fluxo da requisicao](docs/arquitetura.md)
 - [Rotas e controllers](docs/rotas-e-controllers.md)
 - [Middleware](docs/middleware.md)

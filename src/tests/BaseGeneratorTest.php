@@ -23,6 +23,7 @@ final class BaseGeneratorTest extends TestCase
             self::assertFileExists($projectDir . '/app/Core/Auth.php');
             self::assertStringContainsString('/auth/login', (string) file_get_contents($projectDir . '/routes/web.php'));
             self::assertStringContainsString('public function auth()', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
+            self::assertStringContainsString('"autoload-dev"', (string) file_get_contents($projectDir . '/composer.json'));
         } finally {
             $this->removeDirectory($projectDir);
         }
@@ -46,10 +47,13 @@ final class BaseGeneratorTest extends TestCase
             self::assertFileDoesNotExist($projectDir . '/docs/autenticacao.md');
             self::assertStringNotContainsString('/auth/', (string) file_get_contents($projectDir . '/routes/web.php'));
             self::assertStringNotContainsString('AuthMiddleware', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
-            self::assertStringNotContainsString('public function auth()', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
+            self::assertStringContainsString('public function auth()', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
+            self::assertStringContainsString('Mini Auth was not included in this project.', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
             self::assertStringNotContainsString('users', (string) file_get_contents($projectDir . '/database/migrations/2026_01_01_000000_create_initial_tables.php'));
             self::assertStringNotContainsString('auth_tokens', (string) file_get_contents($projectDir . '/database/migrations/2026_01_01_000000_create_initial_tables.php'));
             self::assertStringNotContainsString('DEV_BEARER_TOKEN', (string) file_get_contents($projectDir . '/.env'));
+            self::assertStringNotContainsString('"autoload-dev"', (string) file_get_contents($projectDir . '/composer.json'));
+            self::assertStringNotContainsString('"Tests\\\\"', (string) file_get_contents($projectDir . '/composer.json'));
         } finally {
             $this->removeDirectory($projectDir);
         }
