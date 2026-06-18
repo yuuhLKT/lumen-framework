@@ -49,6 +49,16 @@ php_command() {
 
     for dir in $PATH; do
         if [ -x "$dir/php.bat" ]; then
+            if command -v wslpath >/dev/null 2>&1; then
+                bat_target=$(sed -n 's/^"\([^"]*php\.exe\)".*/\1/p' "$dir/php.bat" | head -n 1)
+
+                if [ -n "$bat_target" ]; then
+                    wslpath -u "$bat_target"
+                    IFS=$old_ifs
+                    return 0
+                fi
+            fi
+
             printf '%s\n' "$dir/php.bat"
             IFS=$old_ifs
             return 0
@@ -73,7 +83,7 @@ run_php() {
             fi
 
             win_php=$(wslpath -w "$php_bin")
-            cmd.exe /C "\"$win_php\" $*"
+            cmd.exe /C ""$win_php" $*"
             ;;
         *)
             "$php_bin" "$@"
