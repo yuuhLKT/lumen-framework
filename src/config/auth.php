@@ -7,5 +7,5 @@ $tokens = array_filter([
 ], fn (mixed $token): bool => trim((string) $token) !== '');
 
 return [
-    'tokens' => array_values($tokens),
+    'tokens' => [...$tokens],
 ];

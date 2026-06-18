@@ -145,11 +145,6 @@ final class Router
             $handler = [new $class(), $method];
         }
 
-        if (is_string($handler) && str_contains($handler, '@')) {
-            [$class, $method] = explode('@', $handler, 2);
-            $handler = [new $class(), $method];
-        }
-
         if (!is_callable($handler)) {
             return Response::json(['error' => 'Handler inválido.'], HttpStatus::INTERNAL_SERVER_ERROR);
         }

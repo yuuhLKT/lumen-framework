@@ -18,14 +18,13 @@ final class Database
 
     public static function connection(?string $name = null): DatabaseConnection
     {
-        $config = require base_path('config/database.php');
-        $name ??= (string) $config['default'];
+        $name ??= (string) config('database.default', 'json');
 
         if (isset(self::$connections[$name])) {
             return self::$connections[$name];
         }
 
-        $connectionConfig = $config['connections'][$name] ?? null;
+        $connectionConfig = config('database.connections.' . $name);
 
         if (!is_array($connectionConfig)) {
             throw new InvalidArgumentException("Conexão de banco [{$name}] não configurada.");
@@ -35,7 +34,7 @@ final class Database
             'json' => new JsonConnection((string) $connectionConfig['path']),
             'sqlite' => new SQLiteConnection((string) $connectionConfig['path']),
             'mysql' => new MySQLConnection($connectionConfig),
-            'pgsql', 'postgres' => new PostgreSQLConnection($connectionConfig),
+            'pgsql' => new PostgreSQLConnection($connectionConfig),
             default => throw new InvalidArgumentException("Driver de banco [{$name}] não suportado."),
         };
     }

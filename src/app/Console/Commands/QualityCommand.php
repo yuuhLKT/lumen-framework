@@ -15,23 +15,23 @@ final class QualityCommand implements Command
     private static array $types = [
         'test' => [
             'name' => 'test',
-            'command' => '.\vendor\bin\phpunit --colors=never',
+            'command' => 'vendor/bin/phpunit --colors=never',
         ],
         'analyse' => [
             'name' => 'analyse',
-            'command' => '.\vendor\bin\phpstan analyse app routes public bootstrap tools --level=7 --memory-limit=512M --no-progress',
+            'command' => 'vendor/bin/phpstan analyse app routes public bootstrap config tools --level=7 --memory-limit=512M --no-progress',
         ],
         'lint' => [
             'name' => 'lint',
-            'command' => 'php tools/lint.php',
+            'command' => PHP_BINARY . ' tools/lint.php',
         ],
         'format' => [
             'name' => 'format',
-            'command' => '.\vendor\bin\php-cs-fixer fix --allow-risky=yes',
+            'command' => 'vendor/bin/php-cs-fixer fix --allow-risky=yes',
         ],
         'format-check' => [
             'name' => 'format-check',
-            'command' => '.\vendor\bin\php-cs-fixer fix --allow-risky=yes --dry-run --diff',
+            'command' => 'vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff',
         ],
     ];
 

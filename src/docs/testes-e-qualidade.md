@@ -40,9 +40,13 @@ composer format
 
 ## O que ja vem testado
 
-- Roteamento basico.
-- Validacao.
+- Roteamento basico com parametros e middlewares.
+- Validacao de input.
 - Transacao do driver JSON.
+- Query builder (JSON e SQLite) com where, orWhere, whereIn, groupBy, join, paginate.
+- Relacionamentos: HasMany, BelongsTo, BelongsToMany (attach/detach/sync).
+- MigrationRunner (status e run).
+- AuthService (registro, login, logout, token invalido).
 - HTTP client fake.
 
 Use estes testes como referencia para testar controllers, services, repositories e clients do seu projeto.

@@ -1,6 +1,6 @@
 # Docker Compose
 
-A base possui `docker-compose.yml` para rodar PHP, MySQL e PostgreSQL em desenvolvimento. O ngrok roda localmente no seu PC pelo Makefile.
+A base possui `docker-compose.yml` para rodar PHP, MySQL e PostgreSQL em desenvolvimento.
 
 SQLite nao precisa de container separado. Ele roda dentro do container PHP usando o arquivo configurado em `DB_SQLITE_PATH`.
 
@@ -9,7 +9,7 @@ SQLite nao precisa de container separado. Ele roda dentro do container PHP usand
 - `docker-compose.yml`: servicos PHP, MySQL e PostgreSQL.
 - `docker/php/Dockerfile`: imagem PHP com `pdo_mysql` e `pdo_pgsql`.
 - `.env.docker.example`: exemplo de variaveis para uso com Docker.
-- `Makefile`: atalhos para escolher banco, atualizar `.env`, subir Docker e iniciar ngrok local.
+- `Makefile`: atalhos para escolher banco, atualizar `.env` e subir Docker.
 - `tools/env.php`: utilitario usado pelo Makefile para alterar `.env`.
 
 ## Preparar .env
@@ -36,9 +36,15 @@ Requisitos:
 
 - `make` instalado no sistema.
 - Docker Compose disponivel como `docker compose` para o modo Docker.
-- Linux/WSL: `sh` disponivel. Windows nativo: PowerShell disponivel.
-- PHP local e necessario apenas para `RUNNER=local`, `make local` e comandos de qualidade/testes fora do container.
-- ngrok instalado e ja configurado no seu PC para o modo Docker com `make up`.
+- Linux/WSL: `sh` disponivel para `make up` no modo Docker.
+- PHP local e necessario apenas para `RUNNER=local`, `make serve` e comandos de qualidade/testes fora do container.
+
+Para subir sem Makefile, use Docker direto:
+
+```bash
+cp .env.docker.example .env
+docker compose up --build php
+```
 
 Ver comandos disponiveis:
 
@@ -70,21 +76,26 @@ make debug-off
 
 Com debug ligado, erros internos retornam `trace` na resposta JSON.
 
-Subir com menu interativo:
+Subir com o banco configurado no `.env`:
 
 ```bash
 make up
 ```
 
-O menu pergunta qual banco usar, altera `DB_CONNECTION` no `.env`, sobe os containers necessarios e inicia o ngrok local apontando para `http://localhost:PHP_PORT`. Quando voce escolher MySQL ou PostgreSQL, o Makefile tambem sobe o container do banco escolhido.
+O `make up` le `DB_CONNECTION` do `.env` e sobe os containers necessarios. Se for MySQL ou PostgreSQL, sobe tambem o container do banco. Para escolher o banco antes de subir, use:
+
+```bash
+make db-json     # ou db-sqlite, db-mysql, db-pgsql
+make up
+```
 
 Forcar PHP local, sem subir container PHP:
 
 ```bash
-make local
+make RUNNER=local up
 ```
 
-Esse comando apenas roda `php -S 0.0.0.0:8000 -t public` usando o `.env` atual.
+Esse comando roda `php -S 0.0.0.0:8000 -t public` usando o `.env` atual.
 
 Para usar PHP local com banco em Docker, suba somente o banco:
 
@@ -93,19 +104,10 @@ make db-up-mysql
 # ou
 make db-up-pg
 
-make local
+make RUNNER=local up
 ```
 
 Esses comandos ajustam o `.env` para `127.0.0.1`, porque o PHP esta rodando no host e acessa a porta publicada pelo container do banco.
-
-Aliases locais tambem estao disponiveis:
-
-```bash
-make local-up
-make local-build
-make local-test
-make local-quality
-```
 
 No modo local, MySQL e PostgreSQL esperam um servidor acessivel pela maquina em `127.0.0.1`.
 
@@ -129,7 +131,11 @@ Usa o banco padrao configurado em `DB_CONNECTION`. Se estiver como `json`, nao p
 docker compose up --build php
 ```
 
-Esse comando nao inicia ngrok. Para o fluxo padrao com ngrok local, use `make up`.
+Esse comando sobe o PHP pelo Docker. Para expor externamente com ngrok, rode manualmente:
+
+```bash
+ngrok http http://localhost:8000
+```
 
 Acesse:
 
@@ -152,7 +158,7 @@ Suba com Makefile:
 make up
 ```
 
-Ou suba direto sem iniciar ngrok:
+Ou suba direto:
 
 ```bash
 docker compose up --build php
@@ -182,7 +188,7 @@ Suba com Makefile:
 make up
 ```
 
-Ou suba direto sem iniciar ngrok:
+Ou suba direto:
 
 ```bash
 docker compose --profile mysql up --build php mysql
@@ -225,7 +231,7 @@ Suba com Makefile:
 make up
 ```
 
-Ou suba direto sem iniciar ngrok:
+Ou suba direto:
 
 ```bash
 docker compose --profile postgres up --build php postgres
@@ -280,27 +286,6 @@ Subir PHP + MySQL + PostgreSQL:
 docker compose --profile mysql --profile postgres up php mysql postgres
 ```
 
-Subir PHP pelo Docker e ngrok local manualmente:
-
-```bash
-docker compose up php
-ngrok http http://localhost:8000
-```
-
-Subir PHP + MySQL pelo Docker e ngrok local manualmente:
-
-```bash
-docker compose --profile mysql up php mysql
-ngrok http http://localhost:8000
-```
-
-Subir PHP + PostgreSQL pelo Docker e ngrok local manualmente:
-
-```bash
-docker compose --profile postgres up php postgres
-ngrok http http://localhost:8000
-```
-
 Parar tudo:
 
 ```bash
@@ -319,29 +304,8 @@ docker compose down -v
 - `postgres_data`: dados do PostgreSQL.
 - O codigo fonte fica montado em `/app` dentro do container PHP.
 
-## Ngrok
-
-O ngrok roda no seu PC e aponta para a porta publicada pelo PHP:
-
-```text
-http://localhost:8000
-```
-
-Se mudar `PHP_PORT`, use a mesma porta no ngrok:
-
-```bash
-ngrok http http://localhost:8001
-```
-
-Dashboard local do ngrok:
-
-```text
-http://localhost:4040
-```
-
 ## Observacoes
 
 - Services com `profiles` so sobem quando o profile e ativado ou quando o servico e chamado diretamente.
 - O PHP nao usa `depends_on` para os bancos, entao voce escolhe qual banco subir.
-- O Makefile inicia ngrok local e Docker juntos; ao encerrar o Docker pelo `Ctrl+C`, o script tambem tenta encerrar o processo ngrok que ele abriu.
 - Se o banco ainda estiver iniciando, aguarde o healthcheck ficar saudavel antes de testar rotas que acessam banco.

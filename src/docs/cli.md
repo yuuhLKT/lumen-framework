@@ -19,7 +19,7 @@ No Linux/WSL:
 No Windows:
 
 ```cmd
-base list
+base.bat list
 ```
 
 ## Comandos disponiveis

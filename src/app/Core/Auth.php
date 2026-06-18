@@ -48,8 +48,7 @@ final class Auth
     /** @return array<int, string> */
     public static function tokens(): array
     {
-        $config = require base_path('config/auth.php');
-        $tokens = $config['tokens'] ?? [];
+        $tokens = config('auth.tokens', []);
 
         if (!is_array($tokens)) {
             return [];

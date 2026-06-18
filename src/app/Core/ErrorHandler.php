@@ -22,12 +22,11 @@ final class ErrorHandler
             return Response::json($body, $exception->status());
         }
 
-        $config = require base_path('config/config.php');
         $body = [
             'error' => 'Erro interno do servidor.',
         ];
 
-        if (($config['debug'] ?? false) === true) {
+        if (config('config.debug', false) === true) {
             $body['trace'] = $exception->getMessage();
         }
 

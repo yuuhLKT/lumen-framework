@@ -4,25 +4,26 @@ Esta base e intencionalmente simples. Ela serve para estudos, desafios e projeto
 
 ## Banco de dados
 
-- Existem migrations simples em PHP, mas nao ha rollback automatico nem diff de schema.
+- Existem migrations em PHP com rollback (`base.php migrate:rollback`).
 - Nos drivers SQLite, MySQL e PostgreSQL, cada tabela tem `id` e `data`.
 - Os atributos ficam serializados como JSON na coluna `data`.
-- `where()` carrega todos os registros e filtra em PHP.
+- `where()` usa o query builder, mas o driver JSON carrega todos os registros em memoria.
 - Nao ha indices por campo do JSON.
 - O driver JSON reescreve o arquivo inteiro a cada escrita.
 - Transacoes no driver JSON sao baseadas em snapshot em memoria, nao em lock de arquivo.
 
 ## HTTP
 
-- Nao existem middlewares.
+- Existem middlewares (`app/Http/Middleware/`) com pipeline e `AuthMiddleware`.
 - Nao existe agrupamento de rotas.
 - Nao existe container de injecao de dependencia.
 - O roteador instancia controllers com `new`, entao construtores precisam ser simples.
 
 ## Autenticacao
 
-- Bearer Token e estatico via `.env`.
-- Nao existe usuario logado, sessao, refresh token ou JWT.
+- Ha auth completa com usuarios: registro, login, logout, tokens opacos com hash SHA-256 (`app/Services/AuthService`).
+- Tambem ha suporte a Bearer Token estatico via `.env` (`config/auth.php`).
+- Nao ha refresh token ou JWT.
 - Use HTTPS se expor qualquer rota protegida fora da maquina local.
 
 ## Validacao
@@ -34,9 +35,10 @@ Esta base e intencionalmente simples. Ela serve para estudos, desafios e projeto
 ## Docker e Makefile
 
 - MySQL e PostgreSQL usam profiles do Docker Compose.
-- Ngrok roda localmente pelo Makefile, nao dentro do Docker.
-- O Makefile espera `php`, `docker compose`, `make` e `ngrok` disponiveis no sistema.
+- O Makefile detecta Docker automaticamente (`RUNNER=auto`). Use `make RUNNER=local up` para forcar PHP local.
+- PHP local e necessario apenas para `RUNNER=local` e comandos de qualidade/testes.
+- Linux/WSL precisa de `sh` para `make up` no modo Docker.
 
 ## Quando evoluir
 
-Considere Laravel, Symfony ou outro framework quando precisar de migrations reversiveis, ORM completo, filas, jobs, autenticação de usuários, permissões complexas, middlewares, cache avancado e deploy de produção.
+Considere Laravel, Symfony ou outro framework quando precisar de ORM completo, filas, jobs, refresh tokens, permissoes complexas, cache avancado e deploy de producao.

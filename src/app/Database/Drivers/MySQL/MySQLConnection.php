@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Database\Drivers\MySQL;
 
-use App\Database\Contracts\DatabaseConnection;
 use App\Database\Contracts\Table;
+use App\Database\Drivers\PdoConnection;
 use PDO;
-use Throwable;
 
-final class MySQLConnection implements DatabaseConnection
+final class MySQLConnection extends PdoConnection
 {
-    private PDO $pdo;
-
     /** @param array<string, mixed> $config */
     public function __construct(array $config)
     {
@@ -38,48 +35,5 @@ final class MySQLConnection implements DatabaseConnection
     public function table(string $name): Table
     {
         return new MySQLTable($this->pdo, $name);
-    }
-
-    public function execute(string $sql): void
-    {
-        $this->pdo->exec($sql);
-    }
-
-    public function beginTransaction(): void
-    {
-        $this->pdo->beginTransaction();
-    }
-
-    public function commit(): void
-    {
-        $this->pdo->commit();
-    }
-
-    public function rollBack(): void
-    {
-        if ($this->pdo->inTransaction()) {
-            $this->pdo->rollBack();
-        }
-    }
-
-    public function transaction(callable $callback): mixed
-    {
-        $this->beginTransaction();
-
-        try {
-            $result = $callback($this);
-            $this->commit();
-
-            return $result;
-        } catch (Throwable $exception) {
-            $this->rollBack();
-
-            throw $exception;
-        }
-    }
-
-    public function pdo(): PDO
-    {
-        return $this->pdo;
     }
 }

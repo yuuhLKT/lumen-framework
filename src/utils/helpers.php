@@ -2,26 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Core\Response;
 use App\Database\Database;
 use App\Database\Contracts\DatabaseConnection;
-
-if (!function_exists('dd')) {
-    function dd(mixed ...$values): never
-    {
-        echo '<pre>';
-        var_dump(...$values);
-        echo '</pre>';
-        exit;
-    }
-}
-
-if (!function_exists('response_json')) {
-    function response_json(mixed $data, int $status = 200): Response
-    {
-        return Response::json($data, $status);
-    }
-}
 
 if (!function_exists('env')) {
     function env(string $key, mixed $default = null): mixed

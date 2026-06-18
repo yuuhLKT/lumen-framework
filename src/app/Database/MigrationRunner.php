@@ -16,6 +16,7 @@ final class MigrationRunner
     /** @return array<int, string> */
     public function run(string $path): array
     {
+        $this->ensureMigrationsTable();
         $files = $this->files($path);
         $executed = $this->executedMigrations();
         $ran = [];
@@ -50,6 +51,7 @@ final class MigrationRunner
      */
     public function rollback(string $path, int $steps = 1): array
     {
+        $this->ensureMigrationsTable();
         $executed = $this->executedMigrations();
 
         if ($executed === []) {
@@ -113,6 +115,7 @@ final class MigrationRunner
      */
     public function status(string $path, int $lastLimit = 3): array
     {
+        $this->ensureMigrationsTable();
         $all = array_map(
             fn (string $file): string => basename($file),
             $this->files($path),
@@ -150,5 +153,10 @@ final class MigrationRunner
             fn (array $row): string => (string) ($row['name'] ?? ''),
             $this->connection->table('migrations')->all(),
         );
+    }
+
+    private function ensureMigrationsTable(): void
+    {
+        $this->connection->table('migrations');
     }
 }
