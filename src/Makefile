@@ -25,7 +25,7 @@ endif
 
 ifeq ($(RUNNER),docker)
 ENV_RUN        = $(SH) tools/env.sh
-UP_RUN         = $(SH) tools/up-docker.sh $(ENV_FILE) "$(COMPOSE)"
+UP_RUN         = if command -v script >/dev/null 2>&1; then script -q -c '$(SH) tools/up-docker.sh $(ENV_FILE) "$(COMPOSE)"' /dev/null; else $(SH) tools/up-docker.sh $(ENV_FILE) "$(COMPOSE)"; fi
 DOWN_RUN       = $(COMPOSE) down
 DOWN_V_RUN     = $(COMPOSE) down -v
 BUILD_RUN      = $(COMPOSE) build php
@@ -75,7 +75,7 @@ help:
 	@echo "  make db-postgres    alias de db-pgsql"
 	@echo
 	@echo "Subir / parar (modo detectado em RUNNER):"
-	@echo "  make up             Sobe app com o banco do .env atual (docker compose up ou php -S)"
+	@echo "  make up             Abre menu para subir PHP/banco via Docker ou PHP local"
 	@echo "  make db-up-mysql    Sobe somente MySQL no Docker para uso com make RUNNER=local up"
 	@echo "  make db-up-pg       Sobe somente PostgreSQL no Docker para uso com make RUNNER=local up"
 	@echo "  make db-down        Para bancos Docker"
