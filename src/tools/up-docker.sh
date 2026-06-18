@@ -33,19 +33,52 @@ choose() {
     esac
 }
 
-require_php() {
+php_command() {
     if command -v php >/dev/null 2>&1; then
+        command -v php
         return 0
     fi
 
-    if command -v bash >/dev/null 2>&1 && bash -lc 'command -v php >/dev/null 2>&1'; then
+    if command -v php.exe >/dev/null 2>&1; then
+        command -v php.exe
         return 0
     fi
 
-    if ! command -v php >/dev/null 2>&1; then
+    old_ifs=$IFS
+    IFS=:
+
+    for dir in $PATH; do
+        if [ -x "$dir/php.bat" ]; then
+            printf '%s\n' "$dir/php.bat"
+            IFS=$old_ifs
+            return 0
+        fi
+    done
+
+    IFS=$old_ifs
+    return 1
+}
+
+run_php() {
+    php_bin=$(php_command) || {
         printf '%s\n' 'PHP nao encontrado no PATH. Escolha uma opcao Docker (1-4) ou instale PHP local.' >&2
         exit 1
-    fi
+    }
+
+    case "$php_bin" in
+        *.bat)
+            if ! command -v cmd.exe >/dev/null 2>&1 || ! command -v wslpath >/dev/null 2>&1; then
+                printf '%s\n' 'PHP encontrado como .bat, mas cmd.exe/wslpath nao estao disponiveis.' >&2
+                exit 1
+            fi
+
+            win_php=$(wslpath -w "$php_bin")
+            cmd.exe /C "\"$win_php\" $*"
+            ;;
+        *)
+            "$php_bin" "$@"
+            ;;
+    esac
 }
 
 php_port() {
@@ -58,17 +91,10 @@ php_port() {
 }
 
 run_local() {
-    require_php
-
     port=$(php_port)
     printf '\n%s\n' 'Modo local: iniciando PHP embutido.'
     printf 'App local em: http://localhost:%s\n\n' "$port"
-
-    if command -v php >/dev/null 2>&1; then
-        php -S "0.0.0.0:${port}" -t public
-    else
-        bash -lc "php -S 0.0.0.0:${port} -t public"
-    fi
+    run_php -S "0.0.0.0:${port}" -t public
 }
 
 choice=$(choose)
