@@ -100,6 +100,14 @@ O token não vazio é aceito nas rotas protegidas com `->auth()`.
 
 ## Helpers disponiveis
 
+### dd
+
+Dumpa valores em `<pre>` e encerra a execucao. Use apenas para debug local.
+
+```php
+dd($request->input());
+```
+
 ### env
 
 Busca uma variavel em `$_ENV`, `$_SERVER` ou `getenv()`.
