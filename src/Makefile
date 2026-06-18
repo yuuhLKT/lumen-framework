@@ -24,6 +24,7 @@ endif
 endif
 
 ifeq ($(RUNNER),docker)
+ENV_RUN        = $(SH) tools/env.sh
 UP_RUN         = $(SH) tools/up-docker.sh $(ENV_FILE) "$(COMPOSE)"
 DOWN_RUN       = $(COMPOSE) down
 DOWN_V_RUN     = $(COMPOSE) down -v
@@ -35,6 +36,7 @@ ENV_TEMPLATE   = .env.docker.example
 DB_HOST_MYSQL  = mysql
 DB_HOST_PG     = postgres
 else
+ENV_RUN        = $(PHP) tools/env.php
 UP_RUN         = $(PHP) -S 0.0.0.0:8000 -t public
 DOWN_RUN       = @echo "Nada para parar no modo local (servidor roda em foreground com Ctrl+C)."
 DOWN_V_RUN     = @echo "Nada para parar. Para limpar dados locais use: rm -rf storage/*.sqlite storage/*.json"
@@ -46,9 +48,6 @@ ENV_TEMPLATE   = .env.example
 DB_HOST_MYSQL  = 127.0.0.1
 DB_HOST_PG     = 127.0.0.1
 endif
-
-# ENV_RUN usa env.php (PHP cross-platform) em todos os modos.
-ENV_RUN = $(PHP) tools/env.php
 
 .DEFAULT_GOAL := help
 
@@ -134,14 +133,14 @@ db-pgsql: env
 db-postgres: db-pgsql
 
 db-up-mysql:
-	@$(ENV_RUN) --init $(ENV_FILE) .env.example
-	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
+	@$(SH) tools/env.sh --init $(ENV_FILE) .env.example
+	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
 	@$(COMPOSE) --profile mysql up -d mysql
 	@echo "MySQL Docker pronto. Rode: make RUNNER=local up"
 
 db-up-pg:
-	@$(ENV_RUN) --init $(ENV_FILE) .env.example
-	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
+	@$(SH) tools/env.sh --init $(ENV_FILE) .env.example
+	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
 	@$(COMPOSE) --profile postgres up -d postgres
 	@echo "PostgreSQL Docker pronto. Rode: make RUNNER=local up"
 
@@ -171,10 +170,13 @@ down-v:
 validate:
 ifeq ($(RUNNER),docker)
 	@$(COMPOSE) --profile mysql --profile postgres config >/dev/null
-endif
+	@$(SH) -n tools/env.sh
+	@$(SH) -n tools/up-docker.sh
+else
 	@$(PHP) -l tools/env.php
 	@$(PHP) -l tools/migrate.php
 	@$(PHP) -l tools/seed.php
+endif
 
 deps:
 	@$(COMPOSER) install
