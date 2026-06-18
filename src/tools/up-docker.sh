@@ -34,6 +34,14 @@ choose() {
 }
 
 require_php() {
+    if command -v php >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if command -v bash >/dev/null 2>&1 && bash -lc 'command -v php >/dev/null 2>&1'; then
+        return 0
+    fi
+
     if ! command -v php >/dev/null 2>&1; then
         printf '%s\n' 'PHP nao encontrado no PATH. Escolha uma opcao Docker (1-4) ou instale PHP local.' >&2
         exit 1
@@ -55,7 +63,12 @@ run_local() {
     port=$(php_port)
     printf '\n%s\n' 'Modo local: iniciando PHP embutido.'
     printf 'App local em: http://localhost:%s\n\n' "$port"
-    php -S "0.0.0.0:${port}" -t public
+
+    if command -v php >/dev/null 2>&1; then
+        php -S "0.0.0.0:${port}" -t public
+    else
+        bash -lc "php -S 0.0.0.0:${port} -t public"
+    fi
 }
 
 choice=$(choose)
