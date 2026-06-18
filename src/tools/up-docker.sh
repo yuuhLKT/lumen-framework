@@ -104,7 +104,7 @@ run_local() {
     port=$(php_port)
     printf '\n%s\n' 'Modo local: iniciando PHP embutido.'
     printf 'App local em: http://localhost:%s\n\n' "$port"
-    run_php -S "0.0.0.0:${port}" -t public
+    run_php -S "localhost:${port}" -t public
 }
 
 choice=$(choose)
