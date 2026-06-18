@@ -51,7 +51,13 @@ Tambem sao removidos:
 
 ## Depois de gerar
 
-Entre no projeto criado e rode o fluxo normal:
+Entre no projeto criado e cheque o ambiente:
+
+```bash
+make doctor
+```
+
+Depois rode o fluxo normal:
 
 ```bash
 make deps
