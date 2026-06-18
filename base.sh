@@ -34,6 +34,15 @@ if [[ "$PROJECT_NAME" == "base" ]]; then
     exit 1
 fi
 
+read -r -p "Incluir Mini Auth? [s/N]: " INCLUDE_AUTH
+INCLUDE_AUTH="$(printf '%s' "$INCLUDE_AUTH" | tr -d '\r' | xargs | tr '[:upper:]' '[:lower:]')"
+
+if [[ "$INCLUDE_AUTH" == "s" || "$INCLUDE_AUTH" == "sim" || "$INCLUDE_AUTH" == "y" || "$INCLUDE_AUTH" == "yes" ]]; then
+    INCLUDE_AUTH="yes"
+else
+    INCLUDE_AUTH="no"
+fi
+
 TARGET_DIR="$TARGET_ROOT/$PROJECT_NAME"
 
 if [[ -e "$TARGET_DIR" ]]; then
@@ -48,6 +57,8 @@ if command -v rsync >/dev/null 2>&1; then
         --exclude='.env' \
         --exclude='storage/*.sqlite' \
         --exclude='storage/*.sqlite-*' \
+        --exclude='AGENTS.md' \
+        --exclude='tests/' \
         --exclude='vendor/' \
         --exclude='composer.lock' \
         --exclude='.phpunit.cache' \
@@ -58,8 +69,269 @@ else
     cp -R "$SOURCE_DIR/." "$TARGET_DIR/"
     rm -f "$TARGET_DIR/.env"
     rm -f "$TARGET_DIR"/storage/*.sqlite "$TARGET_DIR"/storage/*.sqlite-* 2>/dev/null || true
+    rm -rf "$TARGET_DIR/AGENTS.md" "$TARGET_DIR/tests"
     rm -rf "$TARGET_DIR/vendor" "$TARGET_DIR/composer.lock"
     rm -rf "$TARGET_DIR/.phpunit.cache" "$TARGET_DIR/.php-cs-fixer.cache" "$TARGET_DIR/coverage"
+fi
+
+remove_auth_files() {
+    rm -f \
+        "$TARGET_DIR/app/Controllers/AuthController.php" \
+        "$TARGET_DIR/app/Services/AuthService.php" \
+        "$TARGET_DIR/app/Repositories/AuthTokenRepository.php" \
+        "$TARGET_DIR/app/Repositories/UserRepository.php" \
+        "$TARGET_DIR/app/Core/Auth.php" \
+        "$TARGET_DIR/app/Http/Middleware/AuthMiddleware.php" \
+        "$TARGET_DIR/config/auth.php" \
+        "$TARGET_DIR/docs/autenticacao.md"
+
+    cat > "$TARGET_DIR/routes/web.php" <<'PHP'
+<?php
+
+declare(strict_types=1);
+
+use App\Controllers\HealthController;
+use App\Core\Router;
+
+$router = new Router();
+
+$router->get('/health', [HealthController::class, 'show']);
+
+return $router;
+PHP
+
+    cat > "$TARGET_DIR/app/Core/Router.php" <<'PHP'
+<?php
+
+declare(strict_types=1);
+
+namespace App\Core;
+
+use App\Http\Middleware\Middleware;
+use App\Http\Middleware\Pipeline;
+use App\Support\HttpStatus;
+
+final class Router
+{
+    /**
+     * @var array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, middlewares: array<int, class-string<Middleware>>}>>
+     */
+    private array $routes = [];
+
+    /** @var array{method: string, index: int}|null */
+    private ?array $lastRoute = null;
+
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
+    public function get(string $path, callable|array|string $handler): self
+    {
+        return $this->add('GET', $path, $handler);
+    }
+
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
+    public function post(string $path, callable|array|string $handler): self
+    {
+        return $this->add('POST', $path, $handler);
+    }
+
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
+    public function put(string $path, callable|array|string $handler): self
+    {
+        return $this->add('PUT', $path, $handler);
+    }
+
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
+    public function patch(string $path, callable|array|string $handler): self
+    {
+        return $this->add('PATCH', $path, $handler);
+    }
+
+    /** @param callable|array{0: class-string, 1: string}|string $handler */
+    public function delete(string $path, callable|array|string $handler): self
+    {
+        return $this->add('DELETE', $path, $handler);
+    }
+
+    public function dispatch(Request $request): Response
+    {
+        foreach ($this->routes[$request->method()] ?? [] as $route) {
+            $params = $this->match($route['path'], $request->path());
+
+            if ($params === null) {
+                continue;
+            }
+
+            $handler = function (Request $request) use ($route, $params): Response {
+                return $this->runHandler($route['handler'], $request, $params);
+            };
+
+            $pipeline = new Pipeline($route['middlewares']);
+
+            return $pipeline->then($handler)($request);
+        }
+
+        if ($this->pathExistsForAnotherMethod($request)) {
+            return Response::json(['error' => 'Metodo nao permitido'], HttpStatus::METHOD_NOT_ALLOWED);
+        }
+
+        return Response::json(['error' => 'Rota nao encontrada'], HttpStatus::NOT_FOUND);
+    }
+
+    /**
+     * @param callable|array{0: class-string, 1: string}|string $handler
+     */
+    private function add(string $method, string $path, callable|array|string $handler): self
+    {
+        $this->routes[$method][] = [
+            'path' => $this->normalizePath($path),
+            'handler' => $handler,
+            'middlewares' => [],
+        ];
+
+        $this->lastRoute = [
+            'method' => $method,
+            'index' => array_key_last($this->routes[$method]),
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @param array<int, class-string<Middleware>> $middlewares
+     */
+    public function middleware(array $middlewares): self
+    {
+        if ($this->lastRoute === null) {
+            return $this;
+        }
+
+        $this->routes[$this->lastRoute['method']][$this->lastRoute['index']]['middlewares'] = array_merge(
+            $this->routes[$this->lastRoute['method']][$this->lastRoute['index']]['middlewares'],
+            $middlewares,
+        );
+
+        return $this;
+    }
+
+    /** @return array<string, string>|null */
+    private function match(string $routePath, string $requestPath): ?array
+    {
+        $paramNames = [];
+        $pattern = preg_replace_callback('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', function (array $matches) use (&$paramNames): string {
+            $paramNames[] = $matches[1];
+
+            return '([^/]+)';
+        }, $routePath);
+
+        if ($pattern === null || !preg_match('#^' . $pattern . '$#', $requestPath, $matches)) {
+            return null;
+        }
+
+        array_shift($matches);
+
+        return array_combine($paramNames, array_map('urldecode', $matches)) ?: [];
+    }
+
+    /**
+     * @param callable|array{0: class-string, 1: string}|string $handler
+     * @param array<string, string> $params
+     */
+    private function runHandler(callable|array|string $handler, Request $request, array $params): Response
+    {
+        if (is_array($handler)) {
+            [$class, $method] = $handler;
+            $handler = [new $class(), $method];
+        }
+
+        if (!is_callable($handler)) {
+            return Response::json(['error' => 'Handler invalido.'], HttpStatus::INTERNAL_SERVER_ERROR);
+        }
+
+        $result = call_user_func($handler, $request, $params);
+
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        if (is_array($result)) {
+            return Response::json($result);
+        }
+
+        return Response::html((string) $result);
+    }
+
+    /**
+     * @return array<string, array<int, array{path: string, handler: callable|array{0: class-string, 1: string}|string, middlewares: array<int, class-string<Middleware>>}>>
+     */
+    public function routes(): array
+    {
+        return $this->routes;
+    }
+
+    private function normalizePath(string $path): string
+    {
+        $path = '/' . trim($path, '/');
+
+        return $path === '/' ? '/' : rtrim($path, '/');
+    }
+
+    private function pathExistsForAnotherMethod(Request $request): bool
+    {
+        foreach ($this->routes as $method => $routes) {
+            if ($method === $request->method()) {
+                continue;
+            }
+
+            foreach ($routes as $route) {
+                if ($this->match($route['path'], $request->path()) !== null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
+PHP
+
+    cat > "$TARGET_DIR/database/migrations/2026_01_01_000000_create_initial_tables.php" <<'PHP'
+<?php
+
+declare(strict_types=1);
+
+use App\Database\Contracts\DatabaseConnection;
+
+return [
+    'up' => function (DatabaseConnection $db): void {
+        // Adicione suas tabelas aqui quando precisar inicializar o banco.
+    },
+    'down' => function (DatabaseConnection $db): void {
+        // Reversao intencionalmente vazia para a base sem tabelas iniciais.
+    },
+];
+PHP
+
+    for file in "$TARGET_DIR/.env.example" "$TARGET_DIR/.env.docker.example" "$TARGET_DIR/.env"; do
+        if [[ -f "$file" ]]; then
+            grep -v '^DEV_BEARER_TOKEN=' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+        fi
+    done
+
+    if [[ -f "$TARGET_DIR/docker-compose.yml" ]]; then
+        grep -v 'DEV_BEARER_TOKEN:' "$TARGET_DIR/docker-compose.yml" > "$TARGET_DIR/docker-compose.yml.tmp" \
+            && mv "$TARGET_DIR/docker-compose.yml.tmp" "$TARGET_DIR/docker-compose.yml"
+    fi
+
+    if [[ -f "$TARGET_DIR/docs/README.md" ]]; then
+        grep -v 'autenticacao.md' "$TARGET_DIR/docs/README.md" \
+            | grep -v 'Mini Auth' \
+            | grep -v 'Auth` valida Bearer Token' \
+            > "$TARGET_DIR/docs/README.md.tmp" \
+            && mv "$TARGET_DIR/docs/README.md.tmp" "$TARGET_DIR/docs/README.md"
+    fi
+}
+
+if [[ "$INCLUDE_AUTH" == "no" ]]; then
+    remove_auth_files
 fi
 
 if [[ -f "$TARGET_DIR/.env.example" ]]; then
@@ -85,6 +357,7 @@ fi
 
 echo
 echo "Projeto criado em: $TARGET_DIR"
+echo "Mini Auth: $([[ "$INCLUDE_AUTH" == "yes" ]] && echo "incluido" || echo "nao incluido")"
 echo
 echo "Proximos passos:"
 echo "  cd \"$TARGET_DIR\""

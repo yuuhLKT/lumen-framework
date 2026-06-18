@@ -48,3 +48,8 @@ This project is a small PHP mini-framework/template for study, APIs, and backend
 - Docker options must not require PHP installed on the host.
 - Local options may require PHP installed on the host.
 - CLI commands live under `app/Console/Commands` and must be registered in `base.php`.
+
+## Git
+
+- Write commit messages in English.
+- Use Conventional Commits in English, for example `feat(generator): add optional auth scaffolding`.
