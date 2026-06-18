@@ -52,26 +52,34 @@ fi
 
 mkdir -p "$TARGET_DIR"
 
-if command -v rsync >/dev/null 2>&1; then
-    rsync -a \
-        --exclude='.env' \
-        --exclude='storage/*.sqlite' \
-        --exclude='storage/*.sqlite-*' \
-        --exclude='AGENTS.md' \
-        --exclude='tests/' \
-        --exclude='vendor/' \
-        --exclude='composer.lock' \
-        --exclude='.phpunit.cache' \
-        --exclude='.php-cs-fixer.cache' \
-        --exclude='coverage' \
-        "$SOURCE_DIR/" "$TARGET_DIR/"
-else
-    cp -R "$SOURCE_DIR/." "$TARGET_DIR/"
-    rm -f "$TARGET_DIR/.env"
-    rm -f "$TARGET_DIR"/storage/*.sqlite "$TARGET_DIR"/storage/*.sqlite-* 2>/dev/null || true
-    rm -rf "$TARGET_DIR/AGENTS.md" "$TARGET_DIR/tests"
-    rm -rf "$TARGET_DIR/vendor" "$TARGET_DIR/composer.lock"
-    rm -rf "$TARGET_DIR/.phpunit.cache" "$TARGET_DIR/.php-cs-fixer.cache" "$TARGET_DIR/coverage"
+copy_source_files() {
+    if command -v rsync >/dev/null 2>&1; then
+        rsync -a \
+            --exclude='.env' \
+            --exclude='storage/*.sqlite' \
+            --exclude='storage/*.sqlite-*' \
+            --exclude='AGENTS.md' \
+            --exclude='tests/' \
+            --exclude='vendor/' \
+            --exclude='composer.lock' \
+            --exclude='.phpunit.cache' \
+            --exclude='.php-cs-fixer.cache' \
+            --exclude='coverage' \
+            "$SOURCE_DIR/" "$TARGET_DIR/"
+    else
+        cp -R "$SOURCE_DIR/." "$TARGET_DIR/"
+        rm -f "$TARGET_DIR/.env"
+        rm -f "$TARGET_DIR"/storage/*.sqlite "$TARGET_DIR"/storage/*.sqlite-* 2>/dev/null || true
+        rm -rf "$TARGET_DIR/AGENTS.md" "$TARGET_DIR/tests"
+        rm -rf "$TARGET_DIR/vendor" "$TARGET_DIR/composer.lock"
+        rm -rf "$TARGET_DIR/.phpunit.cache" "$TARGET_DIR/.php-cs-fixer.cache" "$TARGET_DIR/coverage"
+    fi
+}
+
+copy_source_files
+
+if [[ -f "$SCRIPT_DIR/.gitattributes" ]]; then
+    cp "$SCRIPT_DIR/.gitattributes" "$TARGET_DIR/.gitattributes"
 fi
 
 remove_auth_files() {

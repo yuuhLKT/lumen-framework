@@ -82,6 +82,7 @@ final class ConsoleTest extends TestCase
         $originalDir = getcwd();
         $tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'base-test-' . bin2hex(random_bytes(4));
         mkdir($tempDir);
+        mkdir($tempDir . DIRECTORY_SEPARATOR . 'vendor');
         chdir($tempDir);
 
         try {
@@ -93,6 +94,29 @@ final class ConsoleTest extends TestCase
 
             self::assertSame(0, $exitCode);
             self::assertStringContainsString('Pasta tests/ nao encontrada.', $output);
+        } finally {
+            chdir($originalDir);
+            rmdir($tempDir . DIRECTORY_SEPARATOR . 'vendor');
+            rmdir($tempDir);
+        }
+    }
+
+    public function testQualityCommandRequiresVendor(): void
+    {
+        $originalDir = getcwd();
+        $tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'base-qa-' . bin2hex(random_bytes(4));
+        mkdir($tempDir);
+        chdir($tempDir);
+
+        try {
+            $command = new QualityCommand('test');
+
+            ob_start();
+            $exitCode = $command->run([]);
+            $output = ob_get_clean();
+
+            self::assertSame(1, $exitCode);
+            self::assertStringContainsString('Pasta vendor/ nao encontrada.', $output);
         } finally {
             chdir($originalDir);
             rmdir($tempDir);

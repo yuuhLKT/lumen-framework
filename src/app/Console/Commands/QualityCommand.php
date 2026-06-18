@@ -71,6 +71,13 @@ final class QualityCommand implements Command
      */
     public function run(array $args): int
     {
+        if (!is_dir('vendor')) {
+            echo "Pasta vendor/ nao encontrada.\n";
+            echo "Rode 'composer install' ou 'make deps' antes de usar este comando.\n";
+
+            return 1;
+        }
+
         if ($this->type === 'qa') {
             foreach (['lint', 'format-check', 'analyse', 'test'] as $type) {
                 echo "\n> {$type}\n";

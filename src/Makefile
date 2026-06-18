@@ -54,7 +54,7 @@ endif
 .PHONY: help runner env up down down-v build php-shell logs ps validate \
         debug-on debug-off db-json db-sqlite db-mysql db-pgsql db-postgres \
         db-up-mysql db-up-pg db-up-postgres db-down \
-        deps serve migrate seed fresh test analyse lint format format-check quality qa
+        deps serve migrate seed fresh test analyse lint format format-check quality qa doctor
 
 help:
 	@echo "Base PHP - Makefile"
@@ -100,6 +100,7 @@ help:
 	@echo "  make format-check   PHP CS Fixer (dry-run)"
   @echo "  make quality        lint + format-check + analyse + test"
   @echo "  make qa             executa php base.php qa"
+  @echo "  make doctor         checa ambiente (php base.php doctor)"
 
 runner:
 	@echo "RUNNER resolvido: $(RUNNER)"
@@ -211,3 +212,6 @@ quality: lint format-check analyse test
 
 qa:
 	@$(PHP) base.php qa
+
+doctor:
+	@$(PHP) base.php doctor

@@ -24,6 +24,7 @@ final class BaseGeneratorTest extends TestCase
             self::assertStringContainsString('/auth/login', (string) file_get_contents($projectDir . '/routes/web.php'));
             self::assertStringContainsString('public function auth()', (string) file_get_contents($projectDir . '/app/Core/Router.php'));
             self::assertStringContainsString('"autoload-dev"', (string) file_get_contents($projectDir . '/composer.json'));
+            self::assertFileExists($projectDir . '/.gitattributes');
         } finally {
             $this->removeDirectory($projectDir);
         }
@@ -54,6 +55,7 @@ final class BaseGeneratorTest extends TestCase
             self::assertStringNotContainsString('DEV_BEARER_TOKEN', (string) file_get_contents($projectDir . '/.env'));
             self::assertStringNotContainsString('"autoload-dev"', (string) file_get_contents($projectDir . '/composer.json'));
             self::assertStringNotContainsString('"Tests\\\\"', (string) file_get_contents($projectDir . '/composer.json'));
+            self::assertFileExists($projectDir . '/.gitattributes');
         } finally {
             $this->removeDirectory($projectDir);
         }

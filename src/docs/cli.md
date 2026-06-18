@@ -67,6 +67,7 @@ php base.php qa             # lint + format-check + analyse + test
 
 ```bash
 php base.php route:list
+php base.php doctor         # checa PHP, extensoes, composer, docker, .env e vendor
 ```
 
 ## Formato das migrations

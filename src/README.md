@@ -72,6 +72,9 @@ php base.php test
 php base.php analyse
 php base.php lint
 php base.php format
+php base.php format-check
+php base.php qa         # lint + format-check + analyse + test
+php base.php doctor     # checa ambiente
 ```
 
 Veja mais em [docs/cli.md](docs/cli.md).
@@ -186,7 +189,7 @@ base.php                            CLI proprio
 base                                Wrapper do CLI para Unix
 base.bat                            Wrapper do CLI para Windows
 tools/                              Scripts auxiliares (env, migrate, seed, lint)
-tests/                              Testes PHPUnit
+tests/                              Testes PHPUnit (opcional em projetos gerados)
 docs/                               Documentacao detalhada
 ```
 
