@@ -97,7 +97,7 @@ php_port() {
         return 0
     fi
 
-    awk -F= '/^[[:space:]]*PHP_PORT[[:space:]]*=/ { gsub(/"/, "", $2); print $2; found=1; exit } END { if (!found) print "8000" }' "$env_file"
+    awk -F= '/^[[:space:]]*PHP_PORT[[:space:]]*=/ { gsub(/["\r\t ]/, "", $2); print $2; found=1; exit } END { if (!found) print "8000" }' "$env_file"
 }
 
 run_local() {
