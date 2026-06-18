@@ -19,6 +19,7 @@ final class Database
     public static function connection(?string $name = null): DatabaseConnection
     {
         $name ??= (string) config('database.default', 'json');
+        $name = $name === 'postgres' ? 'pgsql' : $name;
 
         if (isset(self::$connections[$name])) {
             return self::$connections[$name];

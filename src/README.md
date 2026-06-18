@@ -92,12 +92,12 @@ O Makefile gerencia Docker e configuracao de ambiente. Com Docker disponivel:
 make up
 ```
 
-Abre um menu para escolher JSON, SQLite, MySQL ou PostgreSQL, atualiza o `.env`, sobe os containers e inicia o ngrok local apontando para a porta do PHP. Sem Docker, sobe o PHP local.
+Abre um menu para escolher entre PHP no Docker ou PHP local, com JSON, SQLite, MySQL ou PostgreSQL. As opcoes Docker nao exigem PHP instalado no host.
 
 Para forcar PHP local:
 
 ```bash
-make local
+make RUNNER=local up
 ```
 
 Se quiser PHP local com banco em Docker:
@@ -107,7 +107,7 @@ make db-up-mysql
 # ou
 make db-up-pg
 
-make local
+make RUNNER=local up
 ```
 
 Outros comandos do Makefile:
@@ -131,6 +131,7 @@ php base.php migrate
 php base.php seed
 php base.php test
 php base.php analyse
+php base.php qa
 php base.php serve
 ```
 
@@ -142,7 +143,7 @@ php base.php serve
 - Extensao `pdo_pgsql` somente se voce quiser usar PostgreSQL.
 - Nenhuma dependencia externa obrigatoria.
 - Composer opcional para PHPUnit, PHPStan e PHP-CS-Fixer.
-- Docker Compose, PowerShell (Windows) ou `sh` (Linux/WSL) sao suficientes para rodar pelo `make up` sem PHP local.
+- Docker Compose e `sh` (Linux/WSL/Git Bash) sao suficientes para as opcoes Docker do `make up` sem PHP local.
 
 ## Estrutura
 
@@ -176,7 +177,7 @@ database/seeders/                   Seeders PHP simples
 storage/database.json               Banco JSON inicial
 utils/helpers.php                   Helpers globais
 docker-compose.yml                  PHP e bancos via Docker
-Makefile                            Atalhos para Docker, banco e ngrok local
+Makefile                            Atalhos para Docker, banco e PHP local
 base.php                            CLI proprio
 base                                Wrapper do CLI para Unix
 base.bat                            Wrapper do CLI para Windows

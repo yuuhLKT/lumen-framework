@@ -6,8 +6,9 @@ use App\Database\Contracts\DatabaseConnection;
 
 return [
     'up' => function (DatabaseConnection $db): void {
-        $users = $db->table('users');
-        $tokens = $db->table('auth_tokens');
+        // Os drivers desta base criam a tabela quando ela e acessada.
+        $db->table('users');
+        $db->table('auth_tokens');
     },
     'down' => function (DatabaseConnection $db): void {
         // Tabelas JSON/SQLite nao suportam DROP direto via Table.

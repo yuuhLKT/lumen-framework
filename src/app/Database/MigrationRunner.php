@@ -76,9 +76,12 @@ final class MigrationRunner
 
             $this->connection->transaction(function () use ($migration, $name): void {
                 $migration['down']($this->connection);
-                $this->connection->table('migrations')->delete(
-                    (int) ($this->connection->table('migrations')->where('name', $name)[0]['id'] ?? 0),
-                );
+
+                $row = $this->connection->table('migrations')->where('name', $name)[0] ?? null;
+
+                if (isset($row['id'])) {
+                    $this->connection->table('migrations')->delete((int) $row['id']);
+                }
             });
 
             $reverted[] = $name;

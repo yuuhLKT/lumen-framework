@@ -30,14 +30,14 @@ O `.env` tem prioridade sobre variaveis de ambiente do sistema.
 
 ## Usar Makefile
 
-O Makefile e opcional. Ele automatiza a troca do banco no `.env` e sobe o app no Docker quando o daemon esta disponivel. Se o Docker nao estiver disponivel, `make up` cai para o modo local com `php -S`.
+O Makefile e opcional. Ele automatiza a troca do banco no `.env` e abre um menu para subir PHP/banco via Docker ou PHP local.
 
 Requisitos:
 
 - `make` instalado no sistema.
 - Docker Compose disponivel como `docker compose` para o modo Docker.
 - Linux/WSL: `sh` disponivel para `make up` no modo Docker.
-- PHP local e necessario apenas para `RUNNER=local`, `make serve` e comandos de qualidade/testes fora do container.
+- PHP local e necessario apenas para as opcoes locais do menu, `make serve` e comandos de qualidade/testes fora do container.
 
 Para subir sem Makefile, use Docker direto:
 
@@ -76,18 +76,26 @@ make debug-off
 
 Com debug ligado, erros internos retornam `trace` na resposta JSON.
 
-Subir com o banco configurado no `.env`:
+Subir com menu interativo:
 
 ```bash
 make up
 ```
 
-O `make up` le `DB_CONNECTION` do `.env` e sobe os containers necessarios. Se for MySQL ou PostgreSQL, sobe tambem o container do banco. Para escolher o banco antes de subir, use:
+O menu oferece:
 
-```bash
-make db-json     # ou db-sqlite, db-mysql, db-pgsql
-make up
+```text
+1) PHP Docker + JSON
+2) PHP Docker + SQLite
+3) PHP Docker + MySQL container
+4) PHP Docker + PostgreSQL container
+5) PHP local + JSON
+6) PHP local + SQLite
+7) PHP local + MySQL container
+8) PHP local + PostgreSQL container
 ```
+
+As opcoes Docker nao exigem PHP instalado no host. As opcoes locais exigem PHP no host.
 
 Forcar PHP local, sem subir container PHP:
 
