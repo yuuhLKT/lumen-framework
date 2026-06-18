@@ -98,8 +98,8 @@ help:
 	@echo "  make lint           Lint proprio (base.php lint)"
 	@echo "  make format         PHP CS Fixer (altera arquivos)"
 	@echo "  make format-check   PHP CS Fixer (dry-run)"
-	@echo "  make quality        lint + format-check + analyse + test"
-	@echo "  make qa             alias de quality"
+  @echo "  make quality        lint + format-check + analyse + test"
+  @echo "  make qa             executa php base.php qa"
 
 runner:
 	@echo "RUNNER resolvido: $(RUNNER)"
@@ -209,4 +209,5 @@ format-check:
 
 quality: lint format-check analyse test
 
-qa: quality
+qa:
+	@$(PHP) base.php qa

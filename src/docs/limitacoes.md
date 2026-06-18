@@ -2,6 +2,8 @@
 
 Esta base e intencionalmente simples. Ela serve para estudos, desafios e projetos pequenos, nao para substituir um framework completo.
 
+> Recursos como Mini Auth so estao presentes se o projeto foi gerado com essa opcao.
+
 ## Banco de dados
 
 - Existem migrations em PHP com rollback (`base.php migrate:rollback`).

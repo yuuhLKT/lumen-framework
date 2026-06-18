@@ -1,5 +1,7 @@
 # Configuracao, .env e helpers
 
+> A secao de autenticacao abaixo so se aplica se o projeto foi gerado com Mini Auth.
+
 ## Bootstrap
 
 `bootstrap/app.php` faz quatro coisas:

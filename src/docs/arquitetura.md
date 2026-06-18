@@ -1,5 +1,7 @@
 # Arquitetura e fluxo da requisicao
 
+> Recursos de autenticacao so estao disponiveis se o projeto foi gerado com Mini Auth. Projetos sem Auth continuam funcionando normalmente com rotas publicas.
+
 ## Fluxo HTTP
 
 1. O servidor embutido do PHP aponta para `public/`.

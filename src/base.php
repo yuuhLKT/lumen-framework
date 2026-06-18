@@ -15,6 +15,7 @@ use App\Console\Commands\MigrationsListCommand;
 use App\Console\Commands\QualityCommand;
 use App\Console\Commands\RollbackCommand;
 use App\Console\Commands\RouteListCommand;
+use App\Console\Commands\DoctorCommand;
 use App\Console\Commands\SeedCommand;
 use App\Console\Commands\ServeCommand;
 
@@ -32,6 +33,7 @@ $app
     ->register(new MakeMigrationCommand())
     ->register(new RouteListCommand())
     ->register(new ServeCommand())
+    ->register(new DoctorCommand())
     ->register(new QualityCommand('test'))
     ->register(new QualityCommand('analyse'))
     ->register(new QualityCommand('lint'))

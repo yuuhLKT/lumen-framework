@@ -84,6 +84,14 @@ final class QualityCommand implements Command
             return 0;
         }
 
+        if ($this->type === 'test' && !is_dir('tests')) {
+            echo "Pasta tests/ nao encontrada.\n";
+            echo "Crie tests/ com seus testes para usar este comando.\n";
+            echo "Enquanto nao houver testes, continue usando lint/analyse.\n";
+
+            return 0;
+        }
+
         $command = self::$types[$this->type]['command'];
 
         passthru($command, $exitCode);

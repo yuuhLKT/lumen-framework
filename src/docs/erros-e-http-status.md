@@ -1,5 +1,7 @@
 # Erros e codigos HTTP
 
+> A resposta `401` de rotas protegidas so se aplica se o projeto foi gerado com Mini Auth.
+
 ## ErrorHandler
 
 `App\Core\ErrorHandler` centraliza a conversao de excecoes em resposta JSON.

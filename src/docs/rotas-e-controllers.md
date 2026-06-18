@@ -1,5 +1,7 @@
 # Rotas e controllers
 
+> O atalho `->auth()` so esta disponivel se o projeto foi gerado com Mini Auth. Projetos sem Auth usam apenas `->middleware()`.
+
 ## Onde registrar rotas
 
 As rotas ficam em `routes/web.php`.

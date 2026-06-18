@@ -2,6 +2,8 @@
 
 O roteador suporta um pipeline de middlewares.
 
+> O `AuthMiddleware` e o atalho `->auth()` so existem se o projeto foi gerado com Mini Auth.
+
 ## Criar um middleware
 
 Implemente `App\Http\Middleware\Middleware`:
