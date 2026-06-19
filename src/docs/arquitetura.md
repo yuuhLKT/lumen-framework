@@ -61,7 +61,7 @@ Classes fora de `App\` nao sao carregadas por esse autoload.
 - `Repositories`: concentram acesso a uma tabela.
 - `Database`: fornece a mesma API para JSON, SQLite, MySQL e PostgreSQL.
 
-## O que a base nao tenta ser
+## O que a lumen nao tenta ser
 
 - Nao tem Composer.
 - Nao tem container de injecao de dependencia.
@@ -70,4 +70,4 @@ Classes fora de `App\` nao sao carregadas por esse autoload.
 - Nao tem ORM.
 - Nao tem template engine.
 
-Isso e intencional para manter a base pequena e facil de copiar em estudos.
+Isso e intencional para manter a lumen pequena e facil de copiar em estudos.

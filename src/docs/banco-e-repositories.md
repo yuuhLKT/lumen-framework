@@ -1,10 +1,10 @@
 # Banco de dados e repositories
 
-A base possui uma API simples de tabela com quatro drivers: JSON, SQLite, MySQL e PostgreSQL.
+A lumen possui uma API simples de tabela com quatro drivers: JSON, SQLite, MySQL e PostgreSQL.
 
 ## Configuracao
 
-Arquivo: `config/database.php`.
+Arquivo: `config/datalumen.php`.
 
 ```php
 return [
@@ -19,7 +19,7 @@ return [
         'mysql' => [
             'host' => env('DB_MYSQL_HOST', '127.0.0.1'),
             'port' => env('DB_MYSQL_PORT', '3306'),
-            'database' => env('DB_MYSQL_DATABASE', 'base'),
+            'database' => env('DB_MYSQL_DATABASE', 'lumen'),
             'username' => env('DB_MYSQL_USERNAME', 'root'),
             'password' => env('DB_MYSQL_PASSWORD', ''),
             'charset' => env('DB_MYSQL_CHARSET', 'utf8mb4'),
@@ -27,7 +27,7 @@ return [
         'pgsql' => [
             'host' => env('DB_PGSQL_HOST', '127.0.0.1'),
             'port' => env('DB_PGSQL_PORT', '5432'),
-            'database' => env('DB_PGSQL_DATABASE', 'base'),
+            'database' => env('DB_PGSQL_DATABASE', 'lumen'),
             'username' => env('DB_PGSQL_USERNAME', 'postgres'),
             'password' => env('DB_PGSQL_PASSWORD', ''),
         ],
@@ -67,7 +67,7 @@ db()->transaction(function ($connection): void {
 });
 ```
 
-Para SQLite, MySQL e PostgreSQL a transacao usa `PDO`. No driver JSON, a base usa um snapshot em memoria e grava o arquivo apenas no `commit()`.
+Para SQLite, MySQL e PostgreSQL a transacao usa `PDO`. No driver JSON, a lumen usa um snapshot em memoria e grava o arquivo apenas no `commit()`.
 
 ## Usar conexao especifica
 
@@ -80,7 +80,7 @@ $pgsqlUsers = db('pgsql')->table('users');
 
 ## Driver JSON
 
-Padrao da base.
+Padrao da lumen.
 
 Arquivo padrao:
 
@@ -145,7 +145,7 @@ Ative com `.env`:
 DB_CONNECTION=mysql
 DB_MYSQL_HOST=127.0.0.1
 DB_MYSQL_PORT=3306
-DB_MYSQL_DATABASE=base
+DB_MYSQL_DATABASE=lumen
 DB_MYSQL_USERNAME=root
 DB_MYSQL_PASSWORD=
 DB_MYSQL_CHARSET=utf8mb4
@@ -169,7 +169,7 @@ Ative com `.env`:
 DB_CONNECTION=pgsql
 DB_PGSQL_HOST=127.0.0.1
 DB_PGSQL_PORT=5432
-DB_PGSQL_DATABASE=base
+DB_PGSQL_DATABASE=lumen
 DB_PGSQL_USERNAME=postgres
 DB_PGSQL_PASSWORD=
 ```

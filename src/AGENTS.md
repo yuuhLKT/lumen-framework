@@ -14,7 +14,7 @@ This project is a small PHP mini-framework/template for study, APIs, and backend
 ## Testing And QA
 
 - Every code change must include focused tests when behavior is added, fixed, or refactored.
-- Always run `php base.php qa` before finishing a task.
+- Always run `php lumen.php qa` before finishing a task.
 - All existing and new tests must pass.
 - The QA command runs lint, PHP CS Fixer dry-run, PHPStan, and PHPUnit.
 - If QA cannot run in the current environment, explain exactly why and run the narrowest possible alternative.
@@ -47,7 +47,7 @@ This project is a small PHP mini-framework/template for study, APIs, and backend
 - Keep `make up` usable for both Docker and local workflows.
 - Docker options must not require PHP installed on the host.
 - Local options may require PHP installed on the host.
-- CLI commands live under `app/Console/Commands` and must be registered in `base.php`.
+- CLI commands live under `app/Console/Commands` and must be registered in `lumen.php`.
 
 ## Git
 

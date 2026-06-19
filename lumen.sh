@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$SCRIPT_DIR/src"
 TARGET_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-echo "Base PHP"
+echo "Lumen PHP"
 echo "Origem:  $SOURCE_DIR"
 echo "Destino: $TARGET_ROOT"
 echo
@@ -29,8 +29,8 @@ if [[ ! "$PROJECT_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
     exit 1
 fi
 
-if [[ "$PROJECT_NAME" == "base" ]]; then
-    echo "Erro: escolha outro nome para nao conflitar com a pasta base." >&2
+if [[ "$PROJECT_NAME" == "lumen" ]]; then
+    echo "Erro: escolha outro nome para nao conflitar com a pasta lumen." >&2
     exit 1
 fi
 
@@ -140,7 +140,7 @@ return [
         // Adicione suas tabelas aqui quando precisar inicializar o banco.
     },
     'down' => function (DatabaseConnection $db): void {
-        // Reversao intencionalmente vazia para a base sem tabelas iniciais.
+        // Reversao intencionalmente vazia para o projeto sem tabelas iniciais.
     },
 ];
 PHP

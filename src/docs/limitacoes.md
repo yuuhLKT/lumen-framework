@@ -1,12 +1,12 @@
-# Limitacoes da base
+# Limitacoes da lumen
 
-Esta base e intencionalmente simples. Ela serve para estudos, desafios e projetos pequenos, nao para substituir um framework completo.
+Esta lumen e intencionalmente simples. Ela serve para estudos, desafios e projetos pequenos, nao para substituir um framework completo.
 
 > Recursos como Mini Auth so estao presentes se o projeto foi gerado com essa opcao.
 
 ## Banco de dados
 
-- Existem migrations em PHP com rollback (`base.php migrate:rollback`).
+- Existem migrations em PHP com rollback (`lumen.php migrate:rollback`).
 - Nos drivers SQLite, MySQL e PostgreSQL, cada tabela tem `id` e `data`.
 - Os atributos ficam serializados como JSON na coluna `data`.
 - `where()` usa o query builder, mas o driver JSON carrega todos os registros em memoria.

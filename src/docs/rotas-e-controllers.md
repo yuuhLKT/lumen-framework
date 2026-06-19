@@ -124,7 +124,7 @@ Se o token estiver ausente ou invalido, a resposta sera HTTP `401`:
 
 Veja [Autenticacao Bearer Token](autenticacao.md) para configuracao completa.
 
-## Controller base
+## Controller lumen
 
 Todo controller pode estender `App\Core\Controller` para ganhar atalhos:
 

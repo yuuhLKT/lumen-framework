@@ -30,7 +30,7 @@ final class Application
 
         if (!isset($this->commands[$name])) {
             fwrite(STDERR, "Comando desconhecido: {$name}\n");
-            fwrite(STDERR, "Rode 'php base list' para ver os comandos disponiveis.\n");
+            fwrite(STDERR, "Rode 'php lumen list' para ver os comandos disponiveis.\n");
 
             return 1;
         }

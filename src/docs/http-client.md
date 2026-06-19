@@ -1,6 +1,6 @@
 # HTTP client
 
-A base possui um client HTTP simples para chamadas externas sem depender de bibliotecas.
+A lumen possui um client HTTP simples para chamadas externas sem depender de bibliotecas.
 
 ## Uso
 

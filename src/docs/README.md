@@ -1,4 +1,4 @@
-# Documentacao da base
+# Documentacao da lumen
 
 Esta pasta separa a documentacao por assunto. Use o README da raiz para rodar o projeto e estes arquivos para entender como cada parte funciona.
 
@@ -21,12 +21,12 @@ Esta pasta separa a documentacao por assunto. Use o README da raiz para rodar o 
 - [Testes e qualidade](testes-e-qualidade.md)
 - [Docker Compose](docker.md)
 - [Erros e codigos HTTP](erros-e-http-status.md)
-- [Limitacoes da base](limitacoes.md)
+- [Limitacoes da lumen](limitacoes.md)
 - [Guia rapido: criar recurso CRUD](guia-crud.md)
 
-## Ideia da base
+## Ideia da lumen
 
-A base simula o esqueleto minimo de um framework pequeno:
+A lumen simula o esqueleto minimo de um framework pequeno:
 
 - `public/index.php` recebe a requisicao.
 - `bootstrap/app.php` prepara autoload, helpers, `.env` e timezone.

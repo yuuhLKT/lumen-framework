@@ -28,7 +28,7 @@ final class ListCommand implements Command
      */
     public function run(array $args): int
     {
-        echo "Base PHP - CLI\n\n";
+        echo "Lumen PHP - CLI\n\n";
         echo "Comandos disponiveis:\n\n";
 
         foreach ($this->app->commands() as $name => $command) {

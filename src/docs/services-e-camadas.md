@@ -1,6 +1,6 @@
 # Services e organizacao de camadas
 
-A base nao tem uma classe `Service` obrigatoria. A ideia e usar services como uma convencao simples quando a regra de negocio comecar a deixar o controller grande.
+A lumen nao tem uma classe `Service` obrigatoria. A ideia e usar services como uma convencao simples quando a regra de negocio comecar a deixar o controller grande.
 
 ## Quando criar um service
 

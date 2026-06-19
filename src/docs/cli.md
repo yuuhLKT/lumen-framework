@@ -1,25 +1,25 @@
 # CLI
 
-A base possui um CLI proprio em `base.php` (e wrappers `base` para Unix e `base.bat` para Windows).
+A lumen possui um CLI proprio em `lumen.php` (e wrappers `lumen` para Unix e `lumen.bat` para Windows).
 
 O Makefile continua existindo, mas agora e focado em Docker e configuracao de ambiente (`.env`, banco, subir/parar containers). Para migrations, seeders, testes, qualidade e servidor local, prefira o CLI.
 
 ## Uso
 
 ```bash
-php base.php list
+php lumen.php list
 ```
 
 No Linux/WSL:
 
 ```bash
-./base list
+./lumen list
 ```
 
 No Windows:
 
 ```cmd
-base.bat list
+lumen.bat list
 ```
 
 ## Comandos disponiveis
@@ -27,47 +27,47 @@ base.bat list
 ### Banco de dados
 
 ```bash
-php base.php migrate            # executa migrations pendentes
-php base.php migrate:rollback   # reverte a ultima migration
-php base.php migrate:rollback 3 # reverte as 3 ultimas
-php base.php migrations:list    # lista status das migrations
-php base.php migrations:list 5  # lista ultimas 5 executadas
-php base.php seed               # executa seeders
-php base.php fresh              # migrate + seed
+php lumen.php migrate            # executa migrations pendentes
+php lumen.php migrate:rollback   # reverte a ultima migration
+php lumen.php migrate:rollback 3 # reverte as 3 ultimas
+php lumen.php migrations:list    # lista status das migrations
+php lumen.php migrations:list 5  # lista ultimas 5 executadas
+php lumen.php seed               # executa seeders
+php lumen.php fresh              # migrate + seed
 ```
 
 ### Geradores
 
 ```bash
-php base.php make:controller UserController
-php base.php make:repository UserRepository
-php base.php make:middleware EnsureAdmin
-php base.php make:migration create_posts_table
+php lumen.php make:controller UserController
+php lumen.php make:repository UserRepository
+php lumen.php make:middleware EnsureAdmin
+php lumen.php make:migration create_posts_table
 ```
 
 ### Servidor local
 
 ```bash
-php base.php serve
-php base.php serve localhost 8080
+php lumen.php serve
+php lumen.php serve localhost 8080
 ```
 
 ### Qualidade
 
 ```bash
-php base.php test
-php base.php analyse
-php base.php lint
-php base.php format
-php base.php format-check
-php base.php qa             # lint + format-check + analyse + test
+php lumen.php test
+php lumen.php analyse
+php lumen.php lint
+php lumen.php format
+php lumen.php format-check
+php lumen.php qa             # lint + format-check + analyse + test
 ```
 
 ### Utilidades
 
 ```bash
-php base.php route:list
-php base.php doctor         # checa PHP, extensoes, composer, docker, .env e vendor
+php lumen.php route:list
+php lumen.php doctor         # checa PHP, extensoes, composer, docker, .env e vendor
 ```
 
 ## Formato das migrations

@@ -53,7 +53,7 @@ Use estes testes como referencia para testar controllers, services, repositories
 
 ## Primeiro teste no projeto gerado
 
-Projetos gerados pelo `base.sh` nao trazem a pasta `tests/` para que voce crie seus proprios testes. Para comecar, crie `tests/MeuTeste.php`:
+Projetos gerados pelo `lumen.sh` nao trazem a pasta `tests/` para que voce crie seus proprios testes. Para comecar, crie `tests/MeuTeste.php`:
 
 ```php
 <?php
@@ -78,7 +78,7 @@ E execute:
 ```bash
 composer test
 # ou
-php base.php test
+php lumen.php test
 ```
 
 Se `tests/` ainda nao existir, o comando explica como comecar.

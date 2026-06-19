@@ -1,6 +1,6 @@
 # Mini Auth
 
-A base possui um Mini Auth real com usuarios, senha com hash e tokens Bearer persistidos. Ele foi feito para estudos, APIs pequenas e desafios backend sem adicionar JWT, sessao ou framework.
+A lumen possui um Mini Auth real com usuarios, senha com hash e tokens Bearer persistidos. Ele foi feito para estudos, APIs pequenas e desafios backend sem adicionar JWT, sessao ou framework.
 
 ## Como funciona
 
@@ -164,7 +164,7 @@ Email duplicado:
 
 ## Token fixo opcional
 
-A base ainda aceita um token fixo no `.env` para scripts internos ou testes muito simples:
+A lumen ainda aceita um token fixo no `.env` para scripts internos ou testes muito simples:
 
 ```env
 DEV_BEARER_TOKEN=dev-token

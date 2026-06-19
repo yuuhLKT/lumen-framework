@@ -10,7 +10,7 @@ Crie arquivos em `database/migrations` usando ordem no nome:
 database/migrations/2026_01_01_000001_create_users.php
 ```
 
-Exemplo usando a API generica da base:
+Exemplo usando a API generica da lumen:
 
 ```php
 <?php

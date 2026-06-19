@@ -26,13 +26,13 @@ DB_JSON_PATH=storage/database.json
 DB_SQLITE_PATH=storage/database.sqlite
 DB_MYSQL_HOST=127.0.0.1
 DB_MYSQL_PORT=3306
-DB_MYSQL_DATABASE=base
+DB_MYSQL_DATABASE=lumen
 DB_MYSQL_USERNAME=root
 DB_MYSQL_PASSWORD=
 DB_MYSQL_CHARSET=utf8mb4
 DB_PGSQL_HOST=127.0.0.1
 DB_PGSQL_PORT=5432
-DB_PGSQL_DATABASE=base
+DB_PGSQL_DATABASE=lumen
 DB_PGSQL_USERNAME=postgres
 DB_PGSQL_PASSWORD=
 ```
@@ -57,7 +57,7 @@ Por padrao, usa `America/Sao_Paulo`.
 
 ## Configuracoes de banco
 
-Arquivo: `config/database.php`.
+Arquivo: `config/datalumen.php`.
 
 Variaveis gerais:
 

@@ -1,6 +1,6 @@
 # Docker Compose
 
-A base possui `docker-compose.yml` para rodar PHP, MySQL e PostgreSQL em desenvolvimento.
+A lumen possui `docker-compose.yml` para rodar PHP, MySQL e PostgreSQL em desenvolvimento.
 
 SQLite nao precisa de container separado. Ele roda dentro do container PHP usando o arquivo configurado em `DB_SQLITE_PATH`.
 
@@ -182,9 +182,9 @@ No `.env`:
 DB_CONNECTION=mysql
 DB_MYSQL_HOST=mysql
 DB_MYSQL_PORT=3306
-DB_MYSQL_DATABASE=base
-DB_MYSQL_USERNAME=base
-DB_MYSQL_PASSWORD=base
+DB_MYSQL_DATABASE=lumen
+DB_MYSQL_USERNAME=lumen
+DB_MYSQL_PASSWORD=lumen
 DB_MYSQL_CHARSET=utf8mb4
 DB_MYSQL_ROOT_PASSWORD=root
 MYSQL_PORT=3306
@@ -207,9 +207,9 @@ Conexao a partir do host:
 ```text
 Host: 127.0.0.1
 Porta: 3306
-Database: base
-Usuario: base
-Senha: base
+Database: lumen
+Usuario: lumen
+Senha: lumen
 ```
 
 Conexao a partir do container PHP:
@@ -227,9 +227,9 @@ No `.env`:
 DB_CONNECTION=pgsql
 DB_PGSQL_HOST=postgres
 DB_PGSQL_PORT=5432
-DB_PGSQL_DATABASE=base
-DB_PGSQL_USERNAME=base
-DB_PGSQL_PASSWORD=base
+DB_PGSQL_DATABASE=lumen
+DB_PGSQL_USERNAME=lumen
+DB_PGSQL_PASSWORD=lumen
 POSTGRES_PORT=5432
 ```
 
@@ -256,9 +256,9 @@ Conexao a partir do host:
 ```text
 Host: 127.0.0.1
 Porta: 5432
-Database: base
-Usuario: base
-Senha: base
+Database: lumen
+Usuario: lumen
+Senha: lumen
 ```
 
 Conexao a partir do container PHP:

@@ -66,7 +66,7 @@ $token = $request->bearerToken();
 - `GET` sempre retorna body vazio.
 - `Content-Type` contendo `application/json` tenta decodificar o `php://input`.
 - Se existir `$_POST`, ele e usado.
-- Caso contrario, a base usa `parse_str()` no body cru.
+- Caso contrario, a lumen usa `parse_str()` no body cru.
 - JSON invalido vira array vazio.
 
 Exemplo JSON:
@@ -110,7 +110,7 @@ Headers extras:
 
 ```php
 return Response::json(['ok' => true], 200, [
-    'X-App' => 'base-php',
+    'X-App' => 'lumen-php',
 ]);
 ```
 

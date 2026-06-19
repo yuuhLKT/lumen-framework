@@ -1,9 +1,9 @@
 # Gerador de projetos
 
-O arquivo `base.sh` cria um novo projeto copiando o conteudo de `src/` para uma pasta no mesmo nivel de `base`.
+O arquivo `lumen.sh` cria um novo projeto copiando o conteudo de `src/` para uma pasta no mesmo nivel de `lumen`.
 
 ```bash
-./base.sh
+./lumen.sh
 ```
 
 Ele pergunta:
@@ -13,7 +13,7 @@ Ele pergunta:
 
 ## O que nao e copiado
 
-O gerador sempre remove itens que pertencem ao desenvolvimento da propria base:
+O gerador sempre remove itens que pertencem ao desenvolvimento da propria lumen:
 
 - `.env`;
 - `AGENTS.md`;

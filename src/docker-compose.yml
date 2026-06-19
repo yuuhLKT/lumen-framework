@@ -17,15 +17,15 @@ services:
       DB_SQLITE_PATH: ${DB_SQLITE_PATH:-storage/database.sqlite}
       DB_MYSQL_HOST: ${DB_MYSQL_HOST:-mysql}
       DB_MYSQL_PORT: ${DB_MYSQL_PORT:-3306}
-      DB_MYSQL_DATABASE: ${DB_MYSQL_DATABASE:-base}
-      DB_MYSQL_USERNAME: ${DB_MYSQL_USERNAME:-base}
-      DB_MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD:-base}
+      DB_MYSQL_DATABASE: ${DB_MYSQL_DATABASE:-lumen}
+      DB_MYSQL_USERNAME: ${DB_MYSQL_USERNAME:-lumen}
+      DB_MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD:-lumen}
       DB_MYSQL_CHARSET: ${DB_MYSQL_CHARSET:-utf8mb4}
       DB_PGSQL_HOST: ${DB_PGSQL_HOST:-postgres}
       DB_PGSQL_PORT: ${DB_PGSQL_PORT:-5432}
-      DB_PGSQL_DATABASE: ${DB_PGSQL_DATABASE:-base}
-      DB_PGSQL_USERNAME: ${DB_PGSQL_USERNAME:-base}
-      DB_PGSQL_PASSWORD: ${DB_PGSQL_PASSWORD:-base}
+      DB_PGSQL_DATABASE: ${DB_PGSQL_DATABASE:-lumen}
+      DB_PGSQL_USERNAME: ${DB_PGSQL_USERNAME:-lumen}
+      DB_PGSQL_PASSWORD: ${DB_PGSQL_PASSWORD:-lumen}
 
   mysql:
     image: mysql:8.4
@@ -34,9 +34,9 @@ services:
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     environment:
-      MYSQL_DATABASE: ${DB_MYSQL_DATABASE:-base}
-      MYSQL_USER: ${DB_MYSQL_USERNAME:-base}
-      MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD:-base}
+      MYSQL_DATABASE: ${DB_MYSQL_DATABASE:-lumen}
+      MYSQL_USER: ${DB_MYSQL_USERNAME:-lumen}
+      MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD:-lumen}
       MYSQL_ROOT_PASSWORD: ${DB_MYSQL_ROOT_PASSWORD:-root}
     volumes:
       - mysql_data:/var/lib/mysql
@@ -54,13 +54,13 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ${DB_PGSQL_DATABASE:-base}
-      POSTGRES_USER: ${DB_PGSQL_USERNAME:-base}
-      POSTGRES_PASSWORD: ${DB_PGSQL_PASSWORD:-base}
+      POSTGRES_DB: ${DB_PGSQL_DATABASE:-lumen}
+      POSTGRES_USER: ${DB_PGSQL_USERNAME:-lumen}
+      POSTGRES_PASSWORD: ${DB_PGSQL_PASSWORD:-lumen}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_PGSQL_USERNAME:-base} -d ${DB_PGSQL_DATABASE:-base}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_PGSQL_USERNAME:-lumen} -d ${DB_PGSQL_DATABASE:-lumen}"]
       interval: 10s
       timeout: 5s
       retries: 10

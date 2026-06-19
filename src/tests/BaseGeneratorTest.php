@@ -74,10 +74,10 @@ final class BaseGeneratorTest extends TestCase
             2 => ['pipe', 'w'],
         ];
 
-        $process = proc_open('bash base.sh', $descriptorSpec, $pipes, $baseDir, $env);
+        $process = proc_open('bash lumen.sh', $descriptorSpec, $pipes, $baseDir, $env);
 
         if (!is_resource($process)) {
-            self::markTestSkipped('Nao foi possivel iniciar bash para testar base.sh.');
+            self::markTestSkipped('Nao foi possivel iniciar bash para testar lumen.sh.');
         }
 
         fwrite($pipes[0], $projectName . "\n" . $authAnswer);
@@ -90,7 +90,7 @@ final class BaseGeneratorTest extends TestCase
 
         $exitCode = proc_close($process);
 
-        self::assertSame(0, $exitCode, "base.sh falhou.\nSTDOUT:\n{$output}\nSTDERR:\n{$errorOutput}");
+        self::assertSame(0, $exitCode, "lumen.sh falhou.\nSTDOUT:\n{$output}\nSTDERR:\n{$errorOutput}");
     }
 
     private function makeFakeComposerBin(): string

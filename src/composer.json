@@ -1,6 +1,6 @@
 {
-    "name": "study/php-base",
-    "description": "Base PHP simples e generica para APIs, estudos e desafios backend.",
+    "name": "study/lumen-php",
+    "description": "Lumen PHP simples e generico para APIs, estudos e desafios backend.",
     "type": "project",
     "license": "MIT",
     "require": {

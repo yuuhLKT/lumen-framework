@@ -1,6 +1,6 @@
 # Validacao
 
-O validador fica em `App\Validation\Validator` e tambem pode ser usado pelo atalho `$this->validate()` do controller base.
+O validador fica em `App\Validation\Validator` e tambem pode ser usado pelo atalho `$this->validate()` do controller lumen.
 
 ## Uso no controller
 

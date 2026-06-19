@@ -124,14 +124,14 @@ case "$choice" in
         ;;
     3)
         sh tools/env.sh --init "$env_file" .env.docker.example >/dev/null
-        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST mysql DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST mysql DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE lumen DB_MYSQL_USERNAME lumen DB_MYSQL_PASSWORD lumen DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
         profile='--profile mysql'
         services='php mysql'
         printf '\n%s\n' 'Selecionado: PHP Docker + MySQL container'
         ;;
     4)
         sh tools/env.sh --init "$env_file" .env.docker.example >/dev/null
-        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST postgres DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST postgres DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE lumen DB_PGSQL_USERNAME lumen DB_PGSQL_PASSWORD lumen >/dev/null
         profile='--profile postgres'
         services='php postgres'
         printf '\n%s\n' 'Selecionado: PHP Docker + PostgreSQL container'
@@ -152,7 +152,7 @@ case "$choice" in
         ;;
     7)
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
-        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE lumen DB_MYSQL_USERNAME lumen DB_MYSQL_PASSWORD lumen DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root >/dev/null
         printf '\n%s\n' 'Selecionado: PHP local + MySQL container'
         # shellcheck disable=SC2086
         $compose --profile mysql up -d mysql
@@ -161,7 +161,7 @@ case "$choice" in
         ;;
     8)
         sh tools/env.sh --init "$env_file" .env.example >/dev/null
-        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base >/dev/null
+        sh tools/env.sh "$env_file" DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE lumen DB_PGSQL_USERNAME lumen DB_PGSQL_PASSWORD lumen >/dev/null
         printf '\n%s\n' 'Selecionado: PHP local + PostgreSQL container'
         # shellcheck disable=SC2086
         $compose --profile postgres up -d postgres

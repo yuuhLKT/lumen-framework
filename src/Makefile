@@ -57,7 +57,7 @@ endif
         deps serve migrate seed fresh test analyse lint format format-check quality qa doctor
 
 help:
-	@echo "Base PHP - Makefile"
+	@echo "Lumen PHP - Makefile"
 	@echo
 	@echo "Runner atual: $(RUNNER)  (override: make RUNNER=local up)"
 	@echo "Detalhe do runner: make runner"
@@ -89,18 +89,18 @@ help:
 	@echo
 	@echo "Qualidade:"
 	@echo "  make deps           composer install"
-	@echo "  make migrate        Roda migrations (base.php migrate)"
-	@echo "  make seed           Roda seeders (base.php seed)"
+	@echo "  make migrate        Roda migrations (lumen.php migrate)"
+	@echo "  make seed           Roda seeders (lumen.php seed)"
 	@echo "  make fresh          migrate + seed"
 	@echo "  make serve          php -S localhost:8000 -t public"
-	@echo "  make test           PHPUnit (base.php test)"
-	@echo "  make analyse        PHPStan (base.php analyse)"
-	@echo "  make lint           Lint proprio (base.php lint)"
+	@echo "  make test           PHPUnit (lumen.php test)"
+	@echo "  make analyse        PHPStan (lumen.php analyse)"
+	@echo "  make lint           Lint proprio (lumen.php lint)"
 	@echo "  make format         PHP CS Fixer (altera arquivos)"
 	@echo "  make format-check   PHP CS Fixer (dry-run)"
   @echo "  make quality        lint + format-check + analyse + test"
-  @echo "  make qa             executa php base.php qa"
-  @echo "  make doctor         checa ambiente (php base.php doctor)"
+  @echo "  make qa             executa php lumen.php qa"
+  @echo "  make doctor         checa ambiente (php lumen.php doctor)"
 
 runner:
 	@echo "RUNNER resolvido: $(RUNNER)"
@@ -126,22 +126,22 @@ db-sqlite: env
 	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION sqlite DB_SQLITE_PATH storage/database.sqlite
 
 db-mysql: env
-	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST $(DB_HOST_MYSQL) DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST $(DB_HOST_MYSQL) DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE lumen DB_MYSQL_USERNAME lumen DB_MYSQL_PASSWORD lumen DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
 
 db-pgsql: env
-	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST $(DB_HOST_PG) DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
+	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST $(DB_HOST_PG) DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE lumen DB_PGSQL_USERNAME lumen DB_PGSQL_PASSWORD lumen
 
 db-postgres: db-pgsql
 
 db-up-mysql:
 	@$(SH) tools/env.sh --init $(ENV_FILE) .env.example
-	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE base DB_MYSQL_USERNAME base DB_MYSQL_PASSWORD base DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
+	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION mysql DB_MYSQL_HOST 127.0.0.1 DB_MYSQL_PORT 3306 DB_MYSQL_DATABASE lumen DB_MYSQL_USERNAME lumen DB_MYSQL_PASSWORD lumen DB_MYSQL_CHARSET utf8mb4 DB_MYSQL_ROOT_PASSWORD root
 	@$(COMPOSE) --profile mysql up -d mysql
 	@echo "MySQL Docker pronto. Rode: make RUNNER=local up"
 
 db-up-pg:
 	@$(SH) tools/env.sh --init $(ENV_FILE) .env.example
-	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE base DB_PGSQL_USERNAME base DB_PGSQL_PASSWORD base
+	@$(SH) tools/env.sh $(ENV_FILE) DB_CONNECTION pgsql DB_PGSQL_HOST 127.0.0.1 DB_PGSQL_PORT 5432 DB_PGSQL_DATABASE lumen DB_PGSQL_USERNAME lumen DB_PGSQL_PASSWORD lumen
 	@$(COMPOSE) --profile postgres up -d postgres
 	@echo "PostgreSQL Docker pronto. Rode: make RUNNER=local up"
 
@@ -186,32 +186,32 @@ serve:
 	@$(PHP) -S localhost:8000 -t public
 
 migrate:
-	@$(PHP) base.php migrate
+	@$(PHP) lumen.php migrate
 
 seed:
-	@$(PHP) base.php seed
+	@$(PHP) lumen.php seed
 
 fresh: migrate seed
 
 test:
-	@$(PHP) base.php test
+	@$(PHP) lumen.php test
 
 analyse:
-	@$(PHP) base.php analyse
+	@$(PHP) lumen.php analyse
 
 lint:
-	@$(PHP) base.php lint
+	@$(PHP) lumen.php lint
 
 format:
-	@$(PHP) base.php format
+	@$(PHP) lumen.php format
 
 format-check:
-	@$(PHP) base.php format-check
+	@$(PHP) lumen.php format-check
 
 quality: lint format-check analyse test
 
 qa:
-	@$(PHP) base.php qa
+	@$(PHP) lumen.php qa
 
 doctor:
-	@$(PHP) base.php doctor
+	@$(PHP) lumen.php doctor

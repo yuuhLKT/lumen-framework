@@ -36,7 +36,7 @@ final class ConsoleTest extends TestCase
         });
 
         ob_start();
-        $exitCode = $app->run(['base.php', 'hello', 'Yuri']);
+        $exitCode = $app->run(['lumen.php', 'hello', 'Yuri']);
         $output = ob_get_clean();
 
         self::assertSame(0, $exitCode);
@@ -47,7 +47,7 @@ final class ConsoleTest extends TestCase
     {
         $app = new Application();
 
-        $exitCode = $app->run(['base.php', 'missing']);
+        $exitCode = $app->run(['lumen.php', 'missing']);
 
         self::assertSame(1, $exitCode);
     }
@@ -60,7 +60,7 @@ final class ConsoleTest extends TestCase
         $app->register(new DoctorCommand());
 
         ob_start();
-        $exitCode = $app->run(['base.php', 'list']);
+        $exitCode = $app->run(['lumen.php', 'list']);
         $output = ob_get_clean();
 
         self::assertSame(0, $exitCode);

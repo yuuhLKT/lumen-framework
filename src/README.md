@@ -1,15 +1,15 @@
-# Base PHP para estudos
+# Lumen PHP para estudos
 
 Estrutura simples em PHP puro para copiar em desafios e focar na logica do problema, sem depender de framework. Composer e opcional, mas recomendado para testes e ferramentas de qualidade.
 
-A base ja vem com roteador, request/response, controller base, Mini Auth com tokens, validacao, tratamento de erros, DTOs, repositories, query builder, relacionamentos, middleware, CLI proprio, services por convencao, client HTTP, migrations/seeders simples (com rollback), transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
+O lumen ja vem com roteador, request/response, controller base, Mini Auth com tokens, validacao, tratamento de erros, DTOs, repositories, query builder, relacionamentos, middleware, CLI proprio, services por convencao, client HTTP, migrations/seeders simples (com rollback), transacoes e banco trocavel entre JSON, SQLite, MySQL e PostgreSQL.
 
 ## Criar um novo projeto
 
-Na pasta `base`, rode:
+Na pasta `lumen`, rode:
 
 ```bash
-./base.sh
+./lumen.sh
 ```
 
 Ele pergunta o nome, se o projeto deve incluir Mini Auth, e copia `src/` para uma nova pasta no mesmo nivel, por exemplo `../meu-projeto`.
@@ -23,7 +23,7 @@ Veja mais em [docs/gerador.md](docs/gerador.md).
 Dentro de `src`:
 
 ```bash
-php base.php serve
+php lumen.php serve
 ```
 
 Ou diretamente com o PHP:
@@ -46,35 +46,35 @@ Resposta esperada:
 
 ## CLI
 
-A base possui um CLI proprio em `base.php` (com wrappers `base` para Unix e `base.bat` para Windows).
+O lumen possui um CLI proprio em `lumen.php` (com wrappers `lumen` para Unix e `lumen.bat` para Windows).
 
 ```bash
-php base.php list
+php lumen.php list
 ```
 
 Comandos principais:
 
 ```bash
-php base.php migrate              # executa migrations pendentes
-php base.php migrate:rollback     # reverte a ultima migration
-php base.php seed                 # executa seeders
-php base.php fresh                # migrate + seed
+php lumen.php migrate              # executa migrations pendentes
+php lumen.php migrate:rollback     # reverte a ultima migration
+php lumen.php seed                 # executa seeders
+php lumen.php fresh                # migrate + seed
 
-php base.php make:controller NomeController
-php base.php make:repository NomeRepository
-php base.php make:middleware NomeMiddleware
-php base.php make:migration create_nome_da_tabela
+php lumen.php make:controller NomeController
+php lumen.php make:repository NomeRepository
+php lumen.php make:middleware NomeMiddleware
+php lumen.php make:migration create_nome_da_tabela
 
-php base.php route:list
-php base.php serve
+php lumen.php route:list
+php lumen.php serve
 
-php base.php test
-php base.php analyse
-php base.php lint
-php base.php format
-php base.php format-check
-php base.php qa         # lint + format-check + analyse + test
-php base.php doctor     # checa ambiente
+php lumen.php test
+php lumen.php analyse
+php lumen.php lint
+php lumen.php format
+php lumen.php format-check
+php lumen.php qa         # lint + format-check + analyse + test
+php lumen.php doctor     # checa ambiente
 ```
 
 Veja mais em [docs/cli.md](docs/cli.md).
@@ -134,12 +134,12 @@ make help             # lista todos os comandos
 Para migrations, seeders, testes, qualidade e servidor local, use o CLI:
 
 ```bash
-php base.php migrate
-php base.php seed
-php base.php test
-php base.php analyse
-php base.php qa
-php base.php serve
+php lumen.php migrate
+php lumen.php seed
+php lumen.php test
+php lumen.php analyse
+php lumen.php qa
+php lumen.php serve
 ```
 
 ## Requisitos
@@ -185,9 +185,9 @@ storage/database.json               Banco JSON inicial
 utils/helpers.php                   Helpers globais
 docker-compose.yml                  PHP e bancos via Docker
 Makefile                            Atalhos para Docker, banco e PHP local
-base.php                            CLI proprio
-base                                Wrapper do CLI para Unix
-base.bat                            Wrapper do CLI para Windows
+lumen.php                            CLI proprio
+lumen                                Wrapper do CLI para Unix
+lumen.bat                            Wrapper do CLI para Windows
 tools/                              Scripts auxiliares (env, migrate, seed, lint)
 tests/                              Testes PHPUnit (opcional em projetos gerados)
 docs/                               Documentacao detalhada
@@ -213,7 +213,7 @@ docs/                               Documentacao detalhada
 - [Configuracao, .env e helpers](docs/configuracao-e-helpers.md)
 - [Docker Compose](docs/docker.md)
 - [Erros e codigos HTTP](docs/erros-e-http-status.md)
-- [Limitacoes da base](docs/limitacoes.md)
+- [Limitacoes do lumen](docs/limitacoes.md)
 - [Guia rapido: criar recurso CRUD](docs/guia-crud.md)
 
 ## Primeiro exemplo
