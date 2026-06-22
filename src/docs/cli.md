@@ -40,14 +40,15 @@ php lumen.php fresh              # migrate + seed
 
 ```bash
 php lumen.php make                 # seleciona um ou mais geradores
-php lumen.php make:controller UserController
-php lumen.php make:repository UserRepository
-php lumen.php make:middleware EnsureAdmin
-php lumen.php make:dto UserDTO
+php lumen.php make:controller User # cria UserController
+php lumen.php make:repository User # cria UserRepository
+php lumen.php make:middleware Auth # cria AuthMiddleware
+php lumen.php make:dto User        # cria UserDTO
+php lumen.php make:test User       # cria UserTest
 php lumen.php make:migration create_posts_table
 ```
 
-O comando agrupado `make` mostra os geradores disponiveis, permite selecionar mais de um por numero separado por virgula e depois pergunta o nome de cada arquivo.
+O comando agrupado `make` mostra os geradores disponiveis, permite selecionar mais de um por numero separado por virgula e depois pergunta o nome de cada arquivo. Os geradores adicionam o sufixo esperado automaticamente quando ele nao for informado; por exemplo, `make:repository User` cria `UserRepository`, e `make:repository UserRepository` nao duplica o sufixo.
 
 ### Servidor local
 

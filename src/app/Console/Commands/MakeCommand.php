@@ -40,6 +40,11 @@ final class MakeCommand implements Command
             'namespace' => 'App\\DTO',
             'suffix' => 'DTO',
         ],
+        'test' => [
+            'dir' => 'tests',
+            'namespace' => 'Tests',
+            'suffix' => 'Test',
+        ],
     ];
 
     public function __construct(?string $type = null)
@@ -142,6 +147,7 @@ final class MakeCommand implements Command
             'controller' => "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n\nuse App\\Core\\Controller;\n\nfinal class {$name} extends Controller\n{\n    //\n}\n",
             'middleware' => "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n\nuse App\\Core\\Request;\nuse App\\Core\\Response;\nuse Closure;\n\nfinal class {$name} implements Middleware\n{\n    public function handle(Request \$request, Closure \$next): Response\n    {\n        return \$next(\$request);\n    }\n}\n",
             'dto' => "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n\nfinal readonly class {$name} extends BaseDTO\n{\n}\n",
+            'test' => "<?php\n\ndeclare(strict_types=1);\n\nnamespace {$namespace};\n\nuse PHPUnit\\Framework\\TestCase;\n\nfinal class {$name} extends TestCase\n{\n    public function testExample(): void\n    {\n        self::assertTrue(true);\n    }\n}\n",
             default => throw new InvalidArgumentException("Stub nao implementado para [{$this->type}]."),
         };
     }

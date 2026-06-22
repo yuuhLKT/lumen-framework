@@ -62,10 +62,11 @@ php lumen.php seed                 # executa seeders
 php lumen.php fresh                # migrate + seed
 
 php lumen.php make                 # seleciona um ou mais geradores
-php lumen.php make:controller NomeController
-php lumen.php make:repository NomeRepository
-php lumen.php make:middleware NomeMiddleware
-php lumen.php make:dto NomeDTO
+php lumen.php make:controller Nome # cria NomeController
+php lumen.php make:repository Nome # cria NomeRepository
+php lumen.php make:middleware Nome # cria NomeMiddleware
+php lumen.php make:dto Nome        # cria NomeDTO
+php lumen.php make:test Nome       # cria NomeTest
 php lumen.php make:migration create_nome_da_tabela
 
 php lumen.php route:list

@@ -60,6 +60,7 @@ final class ConsoleTest extends TestCase
         $app->register(new ListCommand($app));
         $app->register(new QualityCommand('qa'));
         $app->register(new MakeCommand('dto'));
+        $app->register(new MakeCommand('test'));
         $app->register(new DoctorCommand());
 
         ob_start();
@@ -70,6 +71,7 @@ final class ConsoleTest extends TestCase
         self::assertStringContainsString("geral:\n", $output);
         self::assertStringContainsString("make:\n", $output);
         self::assertStringContainsString('make:dto', $output);
+        self::assertStringContainsString('make:test', $output);
         self::assertStringContainsString('qa', $output);
         self::assertStringContainsString('Executa lint, format-check, analyse e test.', $output);
         self::assertStringContainsString('doctor', $output);
@@ -105,6 +107,49 @@ final class ConsoleTest extends TestCase
             self::assertStringContainsString('Criado:', $output);
             self::assertFileExists($path);
             self::assertStringContainsString('final readonly class ' . $name . 'DTO extends BaseDTO', (string) file_get_contents($path));
+        } finally {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
+
+    public function testMakeCommandDoesNotDuplicateSuffix(): void
+    {
+        $name = 'ConsoleRepository' . bin2hex(random_bytes(4));
+        $path = base_path('app/Repositories/' . $name . 'Repository.php');
+        $command = new MakeCommand('repository');
+
+        try {
+            ob_start();
+            $exitCode = $command->run([$name . 'Repository']);
+            ob_end_clean();
+
+            self::assertSame(0, $exitCode);
+            self::assertFileExists($path);
+            self::assertFileDoesNotExist(base_path('app/Repositories/' . $name . 'RepositoryRepository.php'));
+        } finally {
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+    }
+
+    public function testMakeCommandCreatesTestWithAutomaticSuffix(): void
+    {
+        $name = 'ConsoleGenerated' . bin2hex(random_bytes(4));
+        $path = base_path('tests/' . $name . 'Test.php');
+        $command = new MakeCommand('test');
+
+        try {
+            ob_start();
+            $exitCode = $command->run([$name]);
+            $output = ob_get_clean();
+
+            self::assertSame(0, $exitCode);
+            self::assertStringContainsString('Criado:', $output);
+            self::assertFileExists($path);
+            self::assertStringContainsString('final class ' . $name . 'Test extends TestCase', (string) file_get_contents($path));
         } finally {
             if (is_file($path)) {
                 unlink($path);

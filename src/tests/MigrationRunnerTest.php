@@ -71,4 +71,16 @@ PHP);
         @rmdir($path);
         @unlink($dbPath);
     }
+
+    public function testInitialMigrationRunsWithSchemaBuilder(): void
+    {
+        $dbPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'base-initial-migration-' . uniqid('', true) . '.json';
+        $runner = new MigrationRunner(new JsonConnection($dbPath));
+
+        $ran = $runner->run(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations');
+
+        self::assertContains('2026_01_01_000000_create_initial_tables.php', $ran);
+
+        @unlink($dbPath);
+    }
 }

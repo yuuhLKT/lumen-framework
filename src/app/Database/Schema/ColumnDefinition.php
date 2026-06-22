@@ -22,8 +22,6 @@ final class ColumnDefinition
 
     public bool $hasDefault = false;
 
-    public ?string $after = null;
-
     public ?ForeignKeyDefinition $foreign = null;
 
     /** @param array<string, mixed> $options */
@@ -84,13 +82,6 @@ final class ColumnDefinition
         return $this;
     }
 
-    public function after(string $column): self
-    {
-        $this->after = $column;
-
-        return $this;
-    }
-
     public function constrained(?string $table = null, string $column = 'id'): self
     {
         $table ??= str_ends_with($this->name, '_id') ? substr($this->name, 0, -3) . 's' : $this->name . 's';
@@ -102,6 +93,47 @@ final class ColumnDefinition
     public function references(string $column): ForeignKeyDefinition
     {
         $this->foreign = new ForeignKeyDefinition($this->name, '', $column);
+
+        return $this->foreign;
+    }
+
+    public function onDelete(string $action): self
+    {
+        $this->foreignKey()->onDelete($action);
+
+        return $this;
+    }
+
+    public function onUpdate(string $action): self
+    {
+        $this->foreignKey()->onUpdate($action);
+
+        return $this;
+    }
+
+    public function cascadeOnDelete(): self
+    {
+        return $this->onDelete('cascade');
+    }
+
+    public function restrictOnDelete(): self
+    {
+        return $this->onDelete('restrict');
+    }
+
+    public function nullOnDelete(): self
+    {
+        return $this->onDelete('set null');
+    }
+
+    public function cascadeOnUpdate(): self
+    {
+        return $this->onUpdate('cascade');
+    }
+
+    private function foreignKey(): ForeignKeyDefinition
+    {
+        $this->foreign ??= new ForeignKeyDefinition($this->name, '');
 
         return $this->foreign;
     }

@@ -32,6 +32,7 @@ $app
     ->register(new MakeCommand('controller'))
     ->register(new MakeCommand('middleware'))
     ->register(new MakeCommand('dto'))
+    ->register(new MakeCommand('test'))
     ->register(new MakeMigrationCommand())
     ->register(new RouteListCommand())
     ->register(new ServeCommand())
