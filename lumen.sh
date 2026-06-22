@@ -219,17 +219,16 @@ echo
 echo "Proximos passos:"
 echo "  cd \"$TARGET_DIR\""
 echo
-echo "  Rodar PHP local (recomendado para comecar):"
-echo "    make local"
+echo "  Rodar app (recomendado para comecar):"
+echo "    make up"
 echo "    curl http://localhost:8000/health"
 echo
 echo "  Rodar PHP local com banco em Docker:"
 echo "    make db-up-mysql   # sobe somente MySQL e ajusta .env para 127.0.0.1"
-echo "    make local"
-echo "    # ou: make db-up-pg && make local"
+echo "    make up            # detecta Docker/local, escolhe banco e sobe o app"
+echo "    # ou: make db-up-pg && make up"
 echo
-echo "  Rodar tudo pelo fluxo Docker/auto:"
-echo "    make up            # detecta Docker, escolhe banco e sobe o app"
+echo "  Parar containers Docker:"
 echo "    make down          # para containers do compose"
 echo
 echo "  Banco de dados:"

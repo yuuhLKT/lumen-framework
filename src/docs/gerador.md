@@ -64,9 +64,9 @@ make deps
 make up
 ```
 
-Ou, para rodar localmente:
+Ou, para rodar o app pelo fluxo automatico:
 
 ```bash
-make local
+make up
 curl http://localhost:8000/health
 ```
