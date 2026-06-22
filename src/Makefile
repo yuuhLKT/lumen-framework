@@ -1,6 +1,6 @@
 COMPOSE ?= docker compose
 COMPOSER ?= composer
-PHP ?= php
+PHP ?= $(shell if command -v php >/dev/null 2>&1; then command -v php; elif command -v php.exe >/dev/null 2>&1; then command -v php.exe; else printf '%s' php; fi)
 SH ?= sh
 ENV_FILE ?= .env
 
