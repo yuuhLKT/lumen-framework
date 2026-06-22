@@ -51,10 +51,10 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help runner env up down down-v build php-shell logs ps validate \
+.PHONY: help runner env up local down down-v build php-shell logs ps validate \
         debug-on debug-off db-json db-sqlite db-mysql db-pgsql db-postgres \
         db-up-mysql db-up-pg db-up-postgres db-down \
-        deps serve migrate seed fresh test analyse lint format format-check quality qa doctor
+        deps serve migrate seed fresh test local-test analyse lint format format-check quality qa doctor
 
 help:
 	@echo "Lumen PHP - Makefile"
@@ -76,6 +76,7 @@ help:
 	@echo
 	@echo "Subir / parar (modo detectado em RUNNER):"
 	@echo "  make up             Abre menu para subir PHP/banco via Docker ou PHP local"
+	@echo "  make local          Sobe o PHP local sem Docker"
 	@echo "  make db-up-mysql    Sobe somente MySQL no Docker para uso com make RUNNER=local up"
 	@echo "  make db-up-pg       Sobe somente PostgreSQL no Docker para uso com make RUNNER=local up"
 	@echo "  make db-down        Para bancos Docker"
@@ -94,13 +95,14 @@ help:
 	@echo "  make fresh          migrate + seed"
 	@echo "  make serve          php -S localhost:8000 -t public"
 	@echo "  make test           PHPUnit (lumen.php test)"
+	@echo "  make local-test     PHPUnit no host"
 	@echo "  make analyse        PHPStan (lumen.php analyse)"
 	@echo "  make lint           Lint proprio (lumen.php lint)"
 	@echo "  make format         PHP CS Fixer (altera arquivos)"
 	@echo "  make format-check   PHP CS Fixer (dry-run)"
-  @echo "  make quality        lint + format-check + analyse + test"
-  @echo "  make qa             executa php lumen.php qa"
-  @echo "  make doctor         checa ambiente (php lumen.php doctor)"
+	@echo "  make quality        lint + format-check + analyse + test"
+	@echo "  make qa             executa php lumen.php qa"
+	@echo "  make doctor         checa ambiente (php lumen.php doctor)"
 
 runner:
 	@echo "RUNNER resolvido: $(RUNNER)"
@@ -118,6 +120,9 @@ debug-off: env
 
 up: env
 	@$(UP_RUN)
+
+local:
+	@$(MAKE) RUNNER=local up
 
 db-json: env
 	@$(ENV_RUN) $(ENV_FILE) DB_CONNECTION json DB_JSON_PATH storage/database.json
@@ -195,6 +200,8 @@ fresh: migrate seed
 
 test:
 	@$(PHP) lumen.php test
+
+local-test: test
 
 analyse:
 	@$(PHP) lumen.php analyse
