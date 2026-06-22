@@ -11,7 +11,7 @@ final class MigrationsListCommand implements Command
 {
     public function name(): string
     {
-        return 'migrations:list';
+        return 'migrate:list';
     }
 
     public function description(): string

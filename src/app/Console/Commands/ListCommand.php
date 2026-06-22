@@ -31,15 +31,35 @@ final class ListCommand implements Command
         echo "Lumen PHP - CLI\n\n";
         echo "Comandos disponiveis:\n\n";
 
+        $groups = [];
+        $groupNames = [];
+
+        foreach (array_keys($this->app->commands()) as $name) {
+            if (str_contains($name, ':')) {
+                $groupNames[] = explode(':', $name, 2)[0];
+            }
+        }
+
         foreach ($this->app->commands() as $name => $command) {
             if ($name === 'list') {
                 continue;
             }
 
-            echo sprintf("  %-20s %s\n", $name, $command->description());
+            $group = str_contains($name, ':') || in_array($name, $groupNames, true)
+                ? explode(':', $name, 2)[0]
+                : 'geral';
+            $groups[$group][$name] = $command;
         }
 
-        echo "\n";
+        foreach ($groups as $group => $commands) {
+            echo "{$group}:\n";
+
+            foreach ($commands as $name => $command) {
+                echo sprintf("  %-20s %s\n", $name, $command->description());
+            }
+
+            echo "\n";
+        }
 
         return 0;
     }

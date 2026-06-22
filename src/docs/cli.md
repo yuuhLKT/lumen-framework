@@ -30,8 +30,8 @@ lumen.bat list
 php lumen.php migrate            # executa migrations pendentes
 php lumen.php migrate:rollback   # reverte a ultima migration
 php lumen.php migrate:rollback 3 # reverte as 3 ultimas
-php lumen.php migrations:list    # lista status das migrations
-php lumen.php migrations:list 5  # lista ultimas 5 executadas
+php lumen.php migrate:list       # lista status das migrations
+php lumen.php migrate:list 5     # lista ultimas 5 executadas
 php lumen.php seed               # executa seeders
 php lumen.php fresh              # migrate + seed
 ```
@@ -39,11 +39,15 @@ php lumen.php fresh              # migrate + seed
 ### Geradores
 
 ```bash
+php lumen.php make                 # seleciona um ou mais geradores
 php lumen.php make:controller UserController
 php lumen.php make:repository UserRepository
 php lumen.php make:middleware EnsureAdmin
+php lumen.php make:dto UserDTO
 php lumen.php make:migration create_posts_table
 ```
+
+O comando agrupado `make` mostra os geradores disponiveis, permite selecionar mais de um por numero separado por virgula e depois pergunta o nome de cada arquivo.
 
 ### Servidor local
 
