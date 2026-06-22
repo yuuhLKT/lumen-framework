@@ -10,6 +10,14 @@ interface DatabaseConnection
 
     public function table(string $name): Table;
 
+    public function create(string $name, callable $callback): void;
+
+    public function alter(string $name, callable $callback): void;
+
+    public function drop(string $name): void;
+
+    public function dropIfExists(string $name): void;
+
     public function execute(string $sql): void;
 
     public function beginTransaction(): void;

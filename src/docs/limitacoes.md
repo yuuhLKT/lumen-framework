@@ -7,10 +7,10 @@ Esta lumen e intencionalmente simples. Ela serve para estudos, desafios e projet
 ## Banco de dados
 
 - Existem migrations em PHP com rollback (`lumen.php migrate:rollback`).
-- Nos drivers SQLite, MySQL e PostgreSQL, cada tabela tem `id` e `data`.
-- Os atributos ficam serializados como JSON na coluna `data`.
+- Nos drivers SQLite, MySQL e PostgreSQL, migrations com `$db->create(...)` criam colunas reais.
+- Tabelas acessadas diretamente com `table('nome')`, sem migration de schema, ainda usam o modo simples `id` e `data`.
 - `where()` usa o query builder, mas o driver JSON carrega todos os registros em memoria.
-- Nao ha indices por campo do JSON.
+- Indices definidos no `Blueprint` existem nos drivers SQL; o driver JSON guarda apenas metadados de schema.
 - O driver JSON reescreve o arquivo inteiro a cada escrita.
 - Transacoes no driver JSON sao baseadas em snapshot em memoria, nao em lock de arquivo.
 

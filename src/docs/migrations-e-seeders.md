@@ -1,6 +1,6 @@
 # Migrations e seeders
 
-As migrations e seeders sao arquivos PHP simples que retornam uma funcao. Eles recebem a conexao atual de banco.
+As migrations e seeders sao arquivos PHP simples. Migrations podem retornar uma funcao unica ou um array com `up` e `down`; seeders retornam uma funcao. Ambos recebem a conexao atual de banco.
 
 ## Migration
 
@@ -10,7 +10,7 @@ Crie arquivos em `database/migrations` usando ordem no nome:
 database/migrations/2026_01_01_000001_create_users.php
 ```
 
-Exemplo usando a API generica da lumen:
+Exemplo criando tabela com colunas, tipos e atributos:
 
 ```php
 <?php
@@ -18,22 +18,48 @@ Exemplo usando a API generica da lumen:
 declare(strict_types=1);
 
 use App\Database\Contracts\DatabaseConnection;
+use App\Database\Schema\Blueprint;
 
-return function (DatabaseConnection $db): void {
-    $db->table('users')->insert([
-        'name' => 'Admin',
-        'email' => 'admin@example.com',
-    ]);
-};
+return [
+    'up' => function (DatabaseConnection $db): void {
+        $db->create('users', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password_hash');
+            $table->timestamps();
+        });
+    },
+    'down' => function (DatabaseConnection $db): void {
+        $db->dropIfExists('users');
+    },
+];
 ```
 
-Exemplo usando SQL em drivers PDO:
+Tipos comuns suportados no `Blueprint`:
+
+- `id`, `increments`, `bigIncrements`, `foreignId`
+- `string`, `char`, `text`, `mediumText`, `longText`
+- `integer`, `unsignedInteger`, `bigInteger`, `unsignedBigInteger`, `smallInteger`, `tinyInteger`
+- `boolean`, `decimal`, `float`, `double`
+- `json`, `date`, `dateTime`, `timestamp`, `timestamps`, `uuid`, `binary`
+
+Atributos comuns:
+
+- `nullable()`, `default($value)`, `unique()`, `index()`, `primary()`, `unsigned()`
+- `constrained('users')`, `references('id')->on('users')`, `cascadeOnDelete()`
+
+Exemplo alterando tabela:
 
 ```php
 return function (DatabaseConnection $db): void {
-    $db->execute('CREATE TABLE IF NOT EXISTS users_sql (id INTEGER PRIMARY KEY, name TEXT NOT NULL)');
+    $db->alter('users', function (Blueprint $table): void {
+        $table->string('phone')->nullable();
+    });
 };
 ```
+
+Tambem e possivel usar SQL direto em drivers PDO com `$db->execute(...)` quando precisar de algo especifico do banco.
 
 Execute:
 

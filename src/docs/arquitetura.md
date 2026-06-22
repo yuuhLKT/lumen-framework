@@ -66,7 +66,7 @@ Classes fora de `App\` nao sao carregadas por esse autoload.
 - Nao tem Composer.
 - Nao tem container de injecao de dependencia.
 - Nao tem middleware.
-- Nao tem migrations.
+- Nao tem migrations com todos os recursos de um framework completo; existe uma API pequena de schema.
 - Nao tem ORM.
 - Nao tem template engine.
 

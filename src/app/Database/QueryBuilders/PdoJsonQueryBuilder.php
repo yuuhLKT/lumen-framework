@@ -18,6 +18,7 @@ abstract class PdoJsonQueryBuilder extends BaseQueryBuilder
     public function __construct(
         protected readonly PDO $pdo,
         protected readonly string $table,
+        protected readonly bool $jsonPayload = true,
     ) {
     }
 
@@ -74,7 +75,7 @@ abstract class PdoJsonQueryBuilder extends BaseQueryBuilder
     protected function buildSelect(): string
     {
         if ($this->columns === ['*'] || $this->columns === []) {
-            return 't0.id, t0.data';
+            return $this->jsonPayload ? 't0.id, t0.data' : 't0.*';
         }
 
         $parts = [];
@@ -273,6 +274,10 @@ abstract class PdoJsonQueryBuilder extends BaseQueryBuilder
             return "{$alias}.id";
         }
 
+        if (!$this->jsonPayload) {
+            return "{$alias}.{$field}";
+        }
+
         return $this->jsonValueExpressionForAlias($field, $alias);
     }
 
@@ -293,6 +298,10 @@ abstract class PdoJsonQueryBuilder extends BaseQueryBuilder
 
         if ($field === 'id') {
             return "{$alias}.id";
+        }
+
+        if (!$this->jsonPayload) {
+            return "{$alias}.{$field}";
         }
 
         return $this->jsonValueExpressionForAlias($field, $alias);
@@ -346,6 +355,10 @@ abstract class PdoJsonQueryBuilder extends BaseQueryBuilder
     protected function hydrateRows(array $rows): array
     {
         if ($this->columns === ['*'] || $this->columns === []) {
+            if (!$this->jsonPayload) {
+                return $rows;
+            }
+
             return array_map(fn (array $row): array => $this->hydrate($row), $rows);
         }
 

@@ -6,11 +6,12 @@ namespace App\Database\Drivers\Json;
 
 use App\Database\Contracts\DatabaseConnection;
 use App\Database\Contracts\Table;
+use App\Database\Schema\Blueprint;
 use RuntimeException;
 
 final class JsonConnection implements DatabaseConnection
 {
-    /** @var array<string, array<int, array<string, mixed>>>|null */
+    /** @var array<string, mixed>|null */
     private ?array $transactionData = null;
 
     public function __construct(private readonly string $path)
@@ -34,6 +35,37 @@ final class JsonConnection implements DatabaseConnection
     public function table(string $name): Table
     {
         return new JsonTable($this, $name);
+    }
+
+    public function create(string $name, callable $callback): void
+    {
+        $blueprint = new Blueprint($name);
+        $callback($blueprint);
+
+        $database = $this->read();
+        $database[$name] = $database[$name] ?? [];
+        $database['_schema'][$name] = array_map(
+            fn ($column): array => ['name' => $column->name, 'type' => $column->type],
+            $blueprint->columns(),
+        );
+        $this->write($database);
+    }
+
+    public function alter(string $name, callable $callback): void
+    {
+        $this->create($name, $callback);
+    }
+
+    public function drop(string $name): void
+    {
+        $database = $this->read();
+        unset($database[$name], $database['_schema'][$name]);
+        $this->write($database);
+    }
+
+    public function dropIfExists(string $name): void
+    {
+        $this->drop($name);
     }
 
     public function execute(string $sql): void
@@ -86,13 +118,13 @@ final class JsonConnection implements DatabaseConnection
         }
     }
 
-    /** @return array<string, array<int, array<string, mixed>>> */
+    /** @return array<string, mixed> */
     public function read(): array
     {
         return $this->transactionData ?? $this->readFromFile();
     }
 
-    /** @param array<string, array<int, array<string, mixed>>> $data */
+    /** @param array<string, mixed> $data */
     public function write(array $data): void
     {
         if ($this->transactionData !== null) {
@@ -104,7 +136,7 @@ final class JsonConnection implements DatabaseConnection
         $this->writeToFile($data);
     }
 
-    /** @return array<string, array<int, array<string, mixed>>> */
+    /** @return array<string, mixed> */
     private function readFromFile(): array
     {
         $content = file_get_contents($this->path);
@@ -113,7 +145,7 @@ final class JsonConnection implements DatabaseConnection
         return is_array($data) ? $data : [];
     }
 
-    /** @param array<string, array<int, array<string, mixed>>> $data */
+    /** @param array<string, mixed> $data */
     private function writeToFile(array $data): void
     {
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

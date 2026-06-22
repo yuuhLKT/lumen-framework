@@ -404,7 +404,7 @@ curl http://localhost:8000/auth/me -H "Authorization: Bearer token-gerado"
 ## Observacoes
 
 - O autoload carrega classes dentro do namespace `App\` a partir da pasta `app/`.
-- O projeto nao exige migrations. Nos drivers SQL, cada tabela e criada automaticamente com colunas `id` e `data`.
+- Migrations podem criar tabelas com colunas reais via `$db->create(...)`; tabelas acessadas sem schema ainda usam o modo simples `id`/`data`.
 - O `.env` tem prioridade sobre variaveis de ambiente do sistema.
 - Erros internos so mostram `trace` quando `APP_DEBUG=true`.
 - O driver JSON e bom para estudos e desafios pequenos; SQLite, MySQL e PostgreSQL aproximam mais de persistencia real.

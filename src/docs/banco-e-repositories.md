@@ -92,6 +92,7 @@ Caracteristicas:
 
 - Cria o arquivo se ele nao existir.
 - Armazena cada tabela como uma chave no JSON.
+- Guarda metadados de schema quando a tabela e criada por migration com `$db->create(...)`.
 - Gera `id` inteiro incremental por tabela.
 - Remove `id` informado manualmente no `insert()`.
 - Preserva o `id` original no `update()`.
@@ -131,10 +132,9 @@ Caracteristicas:
 
 - Cria o diretorio se necessario.
 - Usa `PDO` com `ERRMODE_EXCEPTION` e `FETCH_ASSOC`.
-- Cria cada tabela automaticamente quando `table('nome')` e chamado.
-- Cada tabela tem colunas `id INTEGER PRIMARY KEY AUTOINCREMENT` e `data TEXT NOT NULL`.
-- Os dados ficam serializados como JSON dentro da coluna `data`.
-- `where()` carrega todos os registros e filtra em PHP.
+- Migrations com `$db->create(...)` criam colunas reais, tipos, indices e chaves estrangeiras suportadas pelo SQLite.
+- Tabelas acessadas direto com `table('nome')`, sem schema, ainda sao criadas automaticamente no modo simples `id` e `data`.
+- Em tabelas com colunas reais, `insert()`, `update()`, `where()` e `query()` usam as colunas da tabela.
 - O nome da tabela precisa seguir `/^[a-zA-Z_][a-zA-Z0-9_]*$/`.
 
 ## Driver MySQL
@@ -155,10 +155,9 @@ Caracteristicas:
 
 - Requer extensao `pdo_mysql`.
 - Usa `PDO` com `ERRMODE_EXCEPTION` e `FETCH_ASSOC`.
-- Cria cada tabela automaticamente quando `table('nome')` e chamado.
-- Cada tabela tem colunas `id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY` e `data JSON NOT NULL`.
-- Os dados ficam serializados como JSON na coluna `data`.
-- `where()` carrega todos os registros e filtra em PHP.
+- Migrations com `$db->create(...)` criam colunas reais, tipos, indices e chaves estrangeiras suportadas pelo MySQL.
+- Tabelas acessadas direto com `table('nome')`, sem schema, ainda sao criadas automaticamente no modo simples `id` e `data`.
+- Em tabelas com colunas reais, `insert()`, `update()`, `where()` e `query()` usam as colunas da tabela.
 - O nome da tabela precisa seguir `/^[a-zA-Z_][a-zA-Z0-9_]*$/`.
 
 ## Driver PostgreSQL
@@ -180,10 +179,9 @@ Caracteristicas:
 
 - Requer extensao `pdo_pgsql`.
 - Usa `PDO` com `ERRMODE_EXCEPTION` e `FETCH_ASSOC`.
-- Cria cada tabela automaticamente quando `table('nome')` e chamado.
-- Cada tabela tem colunas `id SERIAL PRIMARY KEY` e `data JSONB NOT NULL`.
-- Os dados ficam serializados como JSONB na coluna `data`.
-- `where()` carrega todos os registros e filtra em PHP.
+- Migrations com `$db->create(...)` criam colunas reais, tipos, indices e chaves estrangeiras suportadas pelo PostgreSQL.
+- Tabelas acessadas direto com `table('nome')`, sem schema, ainda sao criadas automaticamente no modo simples `id` e `data`.
+- Em tabelas com colunas reais, `insert()`, `update()`, `where()` e `query()` usam as colunas da tabela.
 - O nome da tabela precisa seguir `/^[a-zA-Z_][a-zA-Z0-9_]*$/`.
 
 ## Query Builder

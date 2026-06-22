@@ -84,13 +84,19 @@ Migrations podem retornar apenas uma funcao (up) ou um array com `up` e `down`:
 declare(strict_types=1);
 
 use App\Database\Contracts\DatabaseConnection;
+use App\Database\Schema\Blueprint;
 
 return [
     'up' => function (DatabaseConnection $connection): void {
-        $connection->table('posts')->insert(['name' => 'example']);
+        $connection->create('posts', function (Blueprint $table): void {
+            $table->id();
+            $table->string('title');
+            $table->text('body')->nullable();
+            $table->timestamps();
+        });
     },
     'down' => function (DatabaseConnection $connection): void {
-        $connection->table('posts')->delete(1);
+        $connection->dropIfExists('posts');
     },
 ];
 ```

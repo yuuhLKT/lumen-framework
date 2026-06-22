@@ -12,7 +12,7 @@ final class SQLiteTable extends PdoJsonTable
 {
     protected function createQueryBuilder(): PdoJsonQueryBuilder
     {
-        return new SQLiteQueryBuilder($this->pdo, $this->table);
+        return new SQLiteQueryBuilder($this->pdo, $this->table, $this->usesJsonPayload());
     }
 
     protected function createTableIfMissing(): void
@@ -26,5 +26,16 @@ final class SQLiteTable extends PdoJsonTable
         $statement->execute(['data' => $this->encode($data)]);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    protected function columnNames(): array
+    {
+        $statement = $this->pdo->query("PRAGMA table_info({$this->table})");
+
+        if ($statement === false) {
+            return [];
+        }
+
+        return array_map(fn (array $row): string => (string) $row['name'], $statement->fetchAll());
     }
 }

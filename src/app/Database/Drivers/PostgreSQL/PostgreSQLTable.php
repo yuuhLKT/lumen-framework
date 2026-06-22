@@ -12,7 +12,7 @@ final class PostgreSQLTable extends PdoJsonTable
 {
     protected function createQueryBuilder(): PdoJsonQueryBuilder
     {
-        return new PostgreSQLQueryBuilder($this->pdo, $this->table);
+        return new PostgreSQLQueryBuilder($this->pdo, $this->table, $this->usesJsonPayload());
     }
 
     protected function createTableIfMissing(): void
@@ -26,5 +26,44 @@ final class PostgreSQLTable extends PdoJsonTable
         $statement->execute(['data' => $this->encode($data)]);
 
         return (int) $statement->fetchColumn();
+    }
+
+    protected function insertColumnsAndReturnId(array $data): int
+    {
+        $columns = $this->realColumnNames();
+        $insert = [];
+        $bindings = [];
+
+        foreach ($data as $column => $value) {
+            if (!in_array($column, $columns, true)) {
+                continue;
+            }
+
+            $insert[] = $column;
+            $bindings[$column] = $this->normalizeValue($value);
+        }
+
+        if ($insert === []) {
+            $statement = $this->pdo->prepare("INSERT INTO {$this->table} DEFAULT VALUES RETURNING id");
+            $statement->execute();
+
+            return (int) $statement->fetchColumn();
+        }
+
+        $placeholders = array_map(fn (string $column): string => ':' . $column, $insert);
+        $statement = $this->pdo->prepare("INSERT INTO {$this->table} (" . implode(', ', $insert) . ') VALUES (' . implode(', ', $placeholders) . ') RETURNING id');
+        $statement->execute($bindings);
+
+        return (int) $statement->fetchColumn();
+    }
+
+    protected function columnNames(): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = :table ORDER BY ordinal_position',
+        );
+        $statement->execute(['table' => $this->table]);
+
+        return array_map(fn (array $row): string => (string) $row['column_name'], $statement->fetchAll());
     }
 }
